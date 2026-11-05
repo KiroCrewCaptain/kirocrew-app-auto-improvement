@@ -1,0 +1,16 @@
+[flake8]
+max-line-length = 100
+# The configuration of the Kiro Crew tree this app was ported from, so its code reads
+# against the same rules: black-compatible E203 and W503, and long lines left to the
+# formatter (E501).
+extend-ignore =
+    E203,
+    W503,
+    E501,
+per-file-ignores =
+    # The tests' floor sets the data home BEFORE anything imports Kiro Crew.
+    tests/conftest.py: E402
+exclude =
+    .git,
+    __pycache__,
+    ui/node_modules

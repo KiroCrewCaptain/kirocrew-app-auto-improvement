@@ -1,0 +1,8 @@
+# Known Windows test gaps, carried from Kiro Crew's test/windows-expected-failures.txt.
+#
+# Applied by tests/conftest.py on Windows ONLY: each listed test is marked a STRICT
+# xfail there and runs normally on POSIX. A listed test RUNS, a still-failing one is
+# green, and one that starts PASSING fails the job with XPASS, which is the signal to
+# delete its line. A test that HANGS must not be listed (pytest-timeout cannot
+# interrupt it on Windows); give it an explicit skipif instead.
+tests/test_dogfood_learnings_clone.py::TestRepoControlledGitHooksDoNotExecuteHostSide::test_a_repointed_worktree_gitdir_is_refused

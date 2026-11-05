@@ -1,0 +1,228 @@
+{
+  "app": "auto-improvement",
+  "fixture": "minimal",
+  "locale": "en-US",
+  "timezone": "UTC",
+  "provenance_note": "The isolated gateway served this repository's own copy of the app: capture.py's setup installed it from this checkout (POST /api/apps/install), trusted it and enabled it, and every picture shows its committed bundle (ui/dist/index.mjs) and backend. Kiro Crew still ships a built-in auto-improvement and refuses a second install under the same name, so the Kiro Crew tree the capture ran on is main 55439d8770 with only the built-in copy removed (src/kiro_crew/apps/builtins/auto_improvement and its BUILTIN_NAMES row); kirocrew_tree_dirty records that.",
+  "data_notes": [
+    "The repository on screen is octocat/Hello-World, GitHub's own public sample repository (owned by GitHub's demo account, holding one README). It was connected through the app's own setup call (POST /api/apps/auto-improvement/setup-clone), which cloned it push-disabled into a throwaway scratch directory; no personal data is in it.",
+    "No improvement run was made: the sample repository has no tests or benchmark to calibrate a ruler on, so the ruler stays not calibrated and the findings and pull-request lists are empty.",
+    "The ruler conversation came from a live model, so its wording differs from run to run."
+  ],
+  "init_storage": {
+    "mc-nav": "0"
+  },
+  "ready": "text=Auto-Improvement",
+  "forbid_text": [
+    "Something went wrong",
+    "Could not start a new session"
+  ],
+  "setup": [
+    {
+      "name": "install this repository",
+      "method": "POST",
+      "path": "/api/apps/install",
+      "body": {
+        "source": "{{app_root}}"
+      }
+    },
+    {
+      "name": "trust it (it runs its own code)",
+      "method": "POST",
+      "path": "/api/security/trusted-apps/auto-improvement"
+    },
+    {
+      "name": "turn the app on",
+      "method": "POST",
+      "path": "/api/apps/auto-improvement/enable"
+    },
+    {
+      "name": "retire the host's one-time startup intro",
+      "method": "POST",
+      "path": "/api/feature-videos/feedback",
+      "body": {
+        "id": "crewmates",
+        "status": "dismissed"
+      },
+      "optional": true
+    },
+    {
+      "name": "connect GitHub's sample repository, push disabled",
+      "method": "POST",
+      "path": "/api/apps/auto-improvement/setup-clone",
+      "body": {
+        "url": "https://github.com/octocat/Hello-World"
+      }
+    }
+  ],
+  "screenshots": [
+    {
+      "name": "hero",
+      "path": "/apps/auto-improvement",
+      "themes": [
+        "light",
+        "dark"
+      ],
+      "ready_after": "text=push disabled",
+      "alt": "The Auto-Improvement page working on octocat/Hello-World with push disabled: the Repository card with the base branch picker, the Commit directly to the branch option and Start run, then the Ruler, Findings, Kept and Pull requests counters and the ruler card saying it is not calibrated yet"
+    },
+    {
+      "name": "use-case-connect",
+      "path": "/apps/auto-improvement",
+      "themes": [
+        "light"
+      ],
+      "ready_after": "text=push disabled",
+      "clip": "text=Repository >> xpath=ancestor::div[contains(@class,'rounded')][1]",
+      "alt": "The Repository card: Working on octocat/Hello-World with a push disabled badge, the Base branch picker set to Repository default, the Commit directly to the branch checkbox left off, and the Start run button"
+    },
+    {
+      "name": "use-case-ruler",
+      "path": "/apps/auto-improvement",
+      "themes": [
+        "light"
+      ],
+      "live": true,
+      "steps": [
+        {
+          "wait_for": "text=push disabled"
+        },
+        {
+          "click": "role=button[name='Discuss the ruler']"
+        },
+        {
+          "wait_for": "text=Ruler review >> nth=0",
+          "timeout_ms": 90000
+        },
+        {
+          "wait_for": "text=Waiting for approval",
+          "timeout_ms": 300000
+        },
+        {
+          "wait_ms": 1500
+        }
+      ],
+      "alt": "The Ruler review chat the page opened, filed under the Auto-Improve - octocat/Hello-World folder in Sessions: the end of the seeded question about the ruler, with its two constraints, and the agent's first steps; its next step, a shell command that searches the app's data for the ruler, noise band and canary, is marked Waiting for approval, with Allow once, Trust and Reject below the message box"
+    },
+    {
+      "name": "use-case-resume",
+      "path": "/apps/auto-improvement",
+      "themes": [
+        "light"
+      ],
+      "live": true,
+      "steps": [
+        {
+          "wait_for": "text=push disabled"
+        },
+        {
+          "click": "role=button[name='Discuss the ruler']"
+        },
+        {
+          "wait_for": "text=Waiting for approval",
+          "timeout_ms": 90000
+        },
+        {
+          "wait_ms": 1500
+        }
+      ],
+      "alt": "The same Ruler review chat reopened from the page's Discuss the ruler button: the folder still holds one session, the seeded question is above the agent's steps, and the command it asked to run is still Waiting for approval"
+    }
+  ],
+  "walkthrough": {
+    "name": "walkthrough",
+    "theme": "light",
+    "path": "/apps/auto-improvement",
+    "live": true,
+    "tail_ms": 4000,
+    "alt": "A walkthrough of Auto-Improvement: the GitHub address of octocat/Hello-World is typed and connected, the page shows it working on that repository with push disabled, Discuss the ruler opens a Ruler review chat in which the agent asks for approval before running a command, and asking again from the page reopens the same chat",
+    "steps": [
+      {
+        "wait_for": "text=push disabled"
+      },
+      {
+        "caption": "Paste the GitHub repository you want improved",
+        "position": "bottom"
+      },
+      {
+        "type": "input[aria-label='GitHub repository to improve']",
+        "value": "https://github.com/octocat/Hello-World",
+        "delay_ms": 40
+      },
+      {
+        "click": "role=button[name='Connect']"
+      },
+      {
+        "wait_for": "text=push disabled"
+      },
+      {
+        "caption": "It is cloned with push disabled",
+        "position": "bottom"
+      },
+      {
+        "wait_ms": 2500
+      },
+      {
+        "caption": "Ask an agent about the ruler before anything changes",
+        "position": "bottom"
+      },
+      {
+        "wait_ms": 1200
+      },
+      {
+        "click": "role=button[name='Discuss the ruler']"
+      },
+      {
+        "caption": ""
+      },
+      {
+        "wait_for": "text=Ruler review >> nth=0",
+        "timeout_ms": 90000
+      },
+      {
+        "wait_for": "text=Waiting for approval",
+        "timeout_ms": 300000,
+        "cut": true
+      },
+      {
+        "caption": "The agent asks before it runs a command on your computer",
+        "position": "top"
+      },
+      {
+        "wait_ms": 3500
+      },
+      {
+        "caption": ""
+      },
+      {
+        "wait_ms": 2500
+      },
+      {
+        "goto": "/apps/auto-improvement"
+      },
+      {
+        "wait_for": "text=push disabled"
+      },
+      {
+        "caption": "Ask again later: the same conversation reopens",
+        "position": "bottom"
+      },
+      {
+        "wait_ms": 1200
+      },
+      {
+        "click": "role=button[name='Discuss the ruler']"
+      },
+      {
+        "caption": ""
+      },
+      {
+        "wait_for": "text=Ruler review >> nth=0",
+        "timeout_ms": 60000
+      },
+      {
+        "wait_ms": 3000
+      }
+    ]
+  }
+}
