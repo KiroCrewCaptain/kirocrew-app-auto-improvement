@@ -1755,7 +1755,7 @@ class TestRegisterRoutes:
             assert not path.startswith("/api/")
 
     def test_the_lifecycle_hooks_are_named_by_the_manifest(self) -> None:
-        manifest = json.loads((Path(__file__).resolve().parents[1] / "app.json").read_text())
+        manifest = json.loads((Path(__file__).resolve().parents[1] / "app.json").read_text(encoding="utf-8"))
         assert manifest["backend"]["hooks"] == {
             "routes": "backend.hooks:register_routes",
             "on_startup": "backend.hooks:on_startup",

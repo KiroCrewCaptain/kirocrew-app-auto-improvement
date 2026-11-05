@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import errno
 import os
+import sys
 from pathlib import Path
 
 import pytest
@@ -25,6 +26,11 @@ from auto_improvement.backend import clone_setup
 from kiro_crew import sandbox as sb
 from kiro_crew import sandbox_launcher_program as program
 
+#: The namespace launcher, and the stand-in libc that drives it, are Linux-only.
+linux_only = pytest.mark.skipif(
+    sys.platform != "linux", reason="the namespace launcher is Linux-only"
+)
+
 
 def test_the_clone_probe_classifier_reads_the_sandbox_tuple() -> None:
     # Two spellings of what the launcher says would drift apart the first time the
@@ -32,6 +38,7 @@ def test_the_clone_probe_classifier_reads_the_sandbox_tuple() -> None:
     assert clone_setup._LAUNCHER_EXIT_PREFIXES is sb.LAUNCHER_EXIT_PREFIXES
 
 
+@linux_only
 def test_a_failed_exec_is_a_launcher_failure_to_the_clone_probe(tmp_path: Path) -> None:
     """The clone probe's surfaced detail is the line that names the command; the
     gateway's own sandbox reader takes it for no refusal."""
@@ -118,6 +125,7 @@ def test_every_probe_failure_marker_has_a_launcher_failure_behind_it() -> None:
     assert set(_EMITTERS) == set(clone_setup._LAUNCHER_EXIT_PREFIXES)
 
 
+@linux_only
 @pytest.mark.parametrize("prefix", sorted(_EMITTERS))
 def test_probe_failure_markers_round_trip_against_the_launcher(
     prefix: str, tmp_path: Path, capfd: pytest.CaptureFixture[str]

@@ -172,6 +172,6 @@ def test_the_manifest_names_the_shutdown_hook() -> None:
     import json
     from pathlib import Path
 
-    manifest = json.loads((Path(__file__).resolve().parents[1] / "app.json").read_text())
+    manifest = json.loads((Path(__file__).resolve().parents[1] / "app.json").read_text(encoding="utf-8"))
     assert manifest["backend"]["hooks"]["on_shutdown"] == "backend.hooks:on_shutdown"
     assert callable(hooks.on_shutdown)
