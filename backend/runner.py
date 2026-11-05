@@ -1221,9 +1221,9 @@ class RunSupervisor:
                     self._state.activity.append(
                         {"t": time.time(), "note": f"calibration finished: {status}"}
                     )
-                # Confirm the write landed the way a reader will see it — the ruler file
-                # is the contract every other component gates on, so a silent
-                # disagreement here would let a run start on an uncalibrated ruler.
+                # Confirm the write landed the way a reader will see it — the Ruler card
+                # and the MCP server report the ruler file, so a silent disagreement here
+                # would show a calibration result this run did not reach.
                 if progress_mod.ruler_calibrated() != cleared:
                     logger.error(
                         "%s: ruler.json disagrees with the calibration result (expected %s)",

@@ -1272,11 +1272,13 @@ async def _handle_purge_dead(request: web.Request) -> web.StreamResponse:
 
 
 async def _handle_calibrate(request: web.Request) -> web.StreamResponse:
-    """Run Phase 1 — prove the ruler — before any improvement cycle.
+    """Run Phase 1 — prove the ruler — on its own, and record the result in ruler.json.
 
-    A run refuses to start on an uncalibrated ruler, so this is the gate for the
-    perf track. Building the profile touches git and the test suite, so the whole
-    call runs off the event loop and the work itself continues on a worker thread.
+    Starting a run does not read that record: a perf-track run proves the ruler again
+    in its own pre-flight, and a bug-track run skips the ruler. The record is what the
+    Ruler card and the MCP server report. Building the profile touches git and the test
+    suite, so the whole call runs off the event loop and the work itself continues on a
+    worker thread.
     """
     owner_denied = await _require_owner(request, "calibrate")
     if owner_denied is not None:

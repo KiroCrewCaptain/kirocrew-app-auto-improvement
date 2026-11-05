@@ -1,7 +1,7 @@
 {
   "app": "auto-improvement",
-  "captured_at": "2026-11-05T01:54:46Z",
-  "app_commit": "b77013c868b0a359ea74dd2bc16b85f044a34ac8",
+  "captured_at": "2026-11-05T03:03:09Z",
+  "app_commit": "084fb0ae90bcfe09ada917b0695576b1e62fea37",
   "kirocrew_commit": "55439d87700799a8789a341da65e2e1c355e26fc",
   "kirocrew_tree_dirty": true,
   "gateway": "isolated temporary home, approval=reads; a freshly seeded gateway for the stub screenshots, one for the live ones and one for the walkthrough",
@@ -19,7 +19,7 @@
   "note": "The isolated gateway served this repository's own copy of the app: capture.py's setup installed it from this checkout (POST /api/apps/install), trusted it and enabled it, and every picture shows its committed bundle (ui/dist/index.mjs) and backend. Kiro Crew still ships a built-in auto-improvement and refuses a second install under the same name, so the Kiro Crew tree the capture ran on is main 55439d8770 with only the built-in copy removed (src/kiro_crew/apps/builtins/auto_improvement and its BUILTIN_NAMES row); kirocrew_tree_dirty records that.",
   "data_notes": [
     "The repository on screen is octocat/Hello-World, GitHub's own public sample repository (owned by GitHub's demo account, holding one README). It was connected through the app's own setup call (POST /api/apps/auto-improvement/setup-clone), which cloned it push-disabled into a throwaway scratch directory; no personal data is in it.",
-    "No improvement run was made: the sample repository has no tests or benchmark to calibrate a ruler on, so the ruler stays not calibrated and the findings and pull-request lists are empty.",
+    "No improvement run was made: the sample repository has no tests, so a run would have nothing to check a fix against; the findings and pull-request lists are empty. The ruler card says not calibrated because nothing on the page calibrates it.",
     "The ruler conversation came from a live model, so its wording differs from run to run."
   ],
   "viewport": {
@@ -32,7 +32,7 @@
       "file": "hero-dark.png",
       "name": "hero",
       "theme": "dark",
-      "bytes": 220403,
+      "bytes": 222321,
       "width": 1600,
       "height": 1000,
       "alt": "The Auto-Improvement page working on octocat/Hello-World with push disabled: the Repository card with the base branch picker, the Commit directly to the branch option and Start run, then the Ruler, Findings, Kept and Pull requests counters and the ruler card saying it is not calibrated yet"
@@ -41,7 +41,7 @@
       "file": "hero-light.png",
       "name": "hero",
       "theme": "light",
-      "bytes": 206920,
+      "bytes": 209111,
       "width": 1600,
       "height": 1000,
       "alt": "The Auto-Improvement page working on octocat/Hello-World with push disabled: the Repository card with the base branch picker, the Commit directly to the branch option and Start run, then the Ruler, Findings, Kept and Pull requests counters and the ruler card saying it is not calibrated yet"
@@ -50,7 +50,7 @@
       "file": "use-case-connect-light.png",
       "name": "use-case-connect",
       "theme": "light",
-      "bytes": 101061,
+      "bytes": 100754,
       "width": 1600,
       "height": 527,
       "alt": "The Repository card: Working on octocat/Hello-World with a push disabled badge, the Base branch picker set to Repository default, the Commit directly to the branch checkbox left off, and the Start run button"
@@ -59,7 +59,7 @@
       "file": "use-case-resume-light.png",
       "name": "use-case-resume",
       "theme": "light",
-      "bytes": 366846,
+      "bytes": 380832,
       "width": 1600,
       "height": 1000,
       "alt": "The same Ruler review chat reopened from the page's Discuss the ruler button: the folder still holds one session, the seeded question is above the agent's steps, and the command it asked to run is still Waiting for approval"
@@ -68,23 +68,23 @@
       "file": "use-case-ruler-light.png",
       "name": "use-case-ruler",
       "theme": "light",
-      "bytes": 292582,
+      "bytes": 305472,
       "width": 1600,
       "height": 1000,
-      "alt": "The Ruler review chat the page opened, filed under the Auto-Improve - octocat/Hello-World folder in Sessions: the end of the seeded question about the ruler, with its two constraints, and the agent's first steps; its next step, a shell command that searches the app's data for the ruler, noise band and canary, is marked Waiting for approval, with Allow once, Trust and Reject below the message box"
+      "alt": "The Ruler review chat the page opened, filed under the Auto-Improve - octocat/Hello-World folder in Sessions: the end of the seeded question about the ruler, with its two constraints, and the agent's first steps; its next step, a shell command that searches the app's data for the ruler and its canary, is marked Waiting for approval, with Allow once, Trust and Reject below the message box"
     }
   ],
   "walkthrough": {
     "shortened_waits_s": [
-      18.7
+      12.2
     ],
     "mp4": {
       "file": "walkthrough.mp4",
-      "bytes": 766284
+      "bytes": 697211
     },
     "gif": {
       "file": "walkthrough.gif",
-      "bytes": 5007361,
+      "bytes": 4448419,
       "width": 960,
       "fps": 10
     },

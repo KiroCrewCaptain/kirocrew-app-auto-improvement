@@ -5,7 +5,7 @@
   <img src="docs/media/hero-light.png" alt="The Auto-Improvement page working on octocat/Hello-World with push disabled: the Repository card with the base branch picker, the Commit directly to the branch option and Start run, then the Ruler, Findings, Kept and Pull requests counters and the ruler card saying it is not calibrated yet">
 </picture>
 
-**Measures a GitHub repository before it changes it, and keeps only proven wins.**
+**Fixes bugs in a GitHub repository, and keeps only the fixes its tests prove.**
 
 Auto-Improvement is an app for [Kiro Crew](https://github.com/kirodotdev/KiroCrew),
 the open-source personal AI agent.
@@ -14,23 +14,23 @@ the open-source personal AI agent.
 
 Auto-Improvement adds an **Auto-Improve** page to Kiro Crew's sidebar and two
 helpers to your crew, a Scout and an Engineer. You point the page at one of your
-GitHub repositories. The app first builds a way to measure it (the "ruler") and
-proves the ruler can tell a real improvement from noise; then its helpers try
-small fixes one at a time, test each one, and keep a change only when the
-measured win is bigger than the noise. What survives becomes a **draft** pull
-request on GitHub that you review and publish yourself.
+GitHub repositories. Its helpers look for bugs and try small fixes one at a
+time, and plain tests decide what is kept: a fix survives only when a test that
+fails without it passes with it and the rest of the repository's tests still
+pass. What survives becomes a **draft** pull request on GitHub that you review
+and publish yourself. The page also has **The ruler**, the measurement the app
+would use to judge a speed-up, which you can talk over with an agent.
 
 **Get started:** open **Apps → Discover**, find **Auto-Improvement**, choose
 **Install**, trust it, then **Enable**. See [Install](#install) for the details.
 
 ## The problem it solves
 
-You would like an AI to make your code faster or fix its bugs, but an AI that
-grades its own work tends to "improve" whatever number it is shown, and a noisy
-number produces confident changes that do nothing. Auto-Improvement turns the
-order around: it measures first, refuses to start on a measurement it cannot
-trust, and lets plain tests and repeated measurements decide what is kept. It
-never publishes or merges anything for you; it only drafts.
+You would like an AI to fix your code's bugs, but an AI that grades its own
+work tends to declare success on changes that do nothing or break something
+else. Auto-Improvement never lets the AI grade its own work: the AI only
+proposes, and plain tests decide what is kept, run before and after each change.
+It never publishes or merges anything for you; it only drafts.
 
 ## Top 3 use cases
 
@@ -46,14 +46,14 @@ choose the **Base branch** it should work from.
 
 ### 2. Ask an agent whether the ruler can be trusted
 
-Before you let anything change your code, you want to know whether the
-measurement makes sense. You choose the chat button on **The ruler** card. Kiro
+You want to know whether the measurement the app would use to judge a
+speed-up makes sense. You choose the chat button on **The ruler** card. Kiro
 Crew opens a chat called **Ruler review**, filed in an **Auto-Improve -
 &lt;repository&gt;** folder, with a question about the ruler already sent. The
 agent starts looking, and any command it wants to run on your computer waits for
 your **Allow once** or **Reject**.
 
-![The Ruler review chat the page opened, filed under the Auto-Improve - octocat/Hello-World folder in Sessions: the end of the seeded question about the ruler, with its two constraints, and the agent's first steps; its next step, a shell command that searches the app's data for the ruler, noise band and canary, is marked Waiting for approval, with Allow once, Trust and Reject below the message box](docs/media/use-case-ruler-light.png)
+![The Ruler review chat the page opened, filed under the Auto-Improve - octocat/Hello-World folder in Sessions: the end of the seeded question about the ruler, with its two constraints, and the agent's first steps; its next step, a shell command that searches the app's data for the ruler and its canary, is marked Waiting for approval, with Allow once, Trust and Reject below the message box](docs/media/use-case-ruler-light.png)
 
 ### 3. Pick up the same conversation later
 
@@ -74,8 +74,8 @@ pull request and finding the app lists: each one gets one conversation.
 this repository installed into it. The repository shown is GitHub's own public
 sample repository, octocat/Hello-World. The agent in the chat was a live AI model,
 so what it does differs from run to run; the wait while it worked is shortened.
-No improvement run is shown: the sample repository has no tests to measure, so its
-ruler stays not calibrated and the lists of findings and pull requests are
+No improvement run is shown: the sample repository has no tests, so a run has
+nothing to check a fix against, and the lists of findings and pull requests are
 empty.</sub>
 
 ## Install
@@ -118,7 +118,8 @@ and **auto-improvement-engineer**; you can see them under **Bots**.
    you want verified changes pushed straight to that branch; a protected branch
    always falls back to a draft pull request.
 4. Choose **Start run**. While it runs the card shows the cycle and what was kept,
-   with a live activity feed; **Stop run** stops it between attempts.
+   with a live activity feed; **Stop run** stops it between attempts. If the run
+   stops on a problem, the message next to the button says what went wrong.
 5. Read the results: **Findings ledger** lists every candidate and what happened to
    it (open a row to see its evidence, the test that reproduced it and the
    change), and **Draft pull requests** lists the drafts with their review state
@@ -127,10 +128,12 @@ and **auto-improvement-engineer**; you can see them under **Bots**.
 6. Use the chat button on **The ruler**, on a pull request or on a finding to talk
    it over with an agent. The same button later reopens the same conversation.
 
-A run only starts when the repository can be measured: the ruler must be
-calibrated and must detect a known improvement, and the copy must still have
-pushing switched off. When that is not the case **Start run** does not start a
-run.
+A run started from this page looks for bugs. It does not wait for the ruler:
+every fix it tries is judged by a test that fails before the change and passes
+after it, so the ruler card keeps saying **Not calibrated** while runs go ahead.
+The page has no button that calibrates the ruler. **Start run** is refused when
+the copy no longer has pushing switched off, when a run is already going, or
+when Kiro Crew cannot start the app's sandbox.
 
 ## Settings & data
 
@@ -158,9 +161,15 @@ computer must be able to download it. The message under the box says what went
 wrong, for example that only github.com addresses are supported.
 
 **Start run does nothing.**
-The app does not start a run it cannot measure. The ruler card says **not
-calibrated yet** until the app has proved its measurement on your repository,
-which needs a repository with tests or a benchmark it can run repeatedly.
+The button was refused, and the page does not show why. The usual reasons are
+that the app's copy of the repository no longer has pushing switched off, or that
+Kiro Crew could not start the app's sandbox. Choose **Connect** again with the
+same address, which switches pushing off on the app's copy again, then try again. The ruler card saying **Not
+calibrated** is not the reason: a run does not need it.
+
+**The run stopped with a message next to Start run.**
+The run started and then stopped on a problem; the message says what it was.
+Fix that and choose **Start run** again.
 
 **The chat button opened a different chat.**
 Open **Sessions** and choose the chat in the **Auto-Improve - &lt;repository&gt;**

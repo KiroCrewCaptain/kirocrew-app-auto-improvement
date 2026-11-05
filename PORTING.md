@@ -261,6 +261,8 @@ paths, plural forms by `Intl.PluralRules`.
 | `utils/seedReceipt.settleSeedReceipt`, `utils/thunkError.isMissingSlotError` | `ui/src/host/seedReceipt.ts`, `ui/src/host/chat.ts`, the same rules |
 | `utils/ensureChatFolder`, `utils/sha256Hex` | `ui/src/host/ensureChatFolder.ts`, `ui/src/host/sha256Hex.ts`, unchanged |
 | `react-router-dom` `useNavigate('/chat')` | the chat launcher navigates, after a bounded wait for a new session (gap 12) |
+| `autoImprovement.rulerNotReady`: "The ruler is not calibrated yet, so no improvement cycle will run." | "The ruler is not calibrated yet. It is only used to judge speed-ups; the runs started from this page fix bugs, and the repository's tests judge each fix instead." in all 12 locales. The old sentence was false: a run started from the page is a bug-track run (`track` is not writable through `PUT /config`), which skips the ruler (`spine/driver.py`, `run`), and nothing on the page writes the `ruler.json` the card reads |
+| `autoImprovement.intro`: "Measures a repository before it changes it: the metric is calibrated and proved first, ..." | "Fixes bugs in a repository and keeps only what its tests prove ..." in all 12 locales. The old wording described a perf-track run; a run started from the page is a bug-track run, which no ruler gates |
 
 ## Tests
 

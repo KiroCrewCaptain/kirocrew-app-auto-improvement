@@ -2,8 +2,11 @@
 // dashboard imports are replaced by the App Kit SDK and this bundle's own modules.
 // Auto-Improvement — the app's page (/apps/auto-improvement).
 //
-// Measures a GitHub repository before it changes it: the ruler is calibrated and
-// proved first, then keep-or-revert cycles draft survivors as DRAFT pull requests.
+// Runs keep-or-revert cycles over a GitHub repository and drafts survivors as DRAFT
+// pull requests. A run started here is a bug-track run, judged RED->GREEN by the
+// repository's tests; the ruler (a calibrated speed metric) gates only a perf-track
+// run, which proves it itself before its first cycle. The Ruler card shows the
+// stand-alone calibration record, which nothing on this page writes.
 // This page is the read + discuss surface over that: ruler trust state, the
 // findings ledger, and live PR status pulled through the gateway's own provider.
 //
