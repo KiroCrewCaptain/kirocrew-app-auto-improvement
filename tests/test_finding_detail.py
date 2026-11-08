@@ -435,6 +435,7 @@ class TestCommitButton:
                     "display": "o/r",
                     "origin_url": "https://github.com/o/r",
                     "push_disabled": True,
+                    "target_url": "https://github.com/o/r",
                 },
                 "",
             ),
