@@ -118,7 +118,8 @@ class TestCapabilityReport:
         assert any("ctx.http_app" in i for i in issues)
         no_gate = SimpleNamespace(sdk_level=1, http_app=object())
         assert _host.capability_issues(no_gate) == [
-            "no ctx.require_owner: every owner-only action is refused"
+            "no ctx.require_owner: every owner-only action is refused",
+            "no ctx.lifecycle and no app lifecycle lock: every run start is refused",
         ]
         _host.need("sandbox", "run_limited")
         assert any("kiro_crew.sandbox.run_limited" in i for i in _host.capability_issues(no_gate))

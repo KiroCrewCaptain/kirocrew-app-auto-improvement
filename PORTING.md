@@ -22,7 +22,15 @@ KiroCrew `main` `55439d8770`:
   suites (listed under "Tests"), and `website/src/test/autoImprovement*.test.ts(x)`,
   `agentSessionFolderResolve.test.ts` and `agentSessionSeedReceipt.test.ts`.
 
-Paths with a line number below refer to that commit. A **gap** is something the
+Fixes the wheel copy took after that commit are ported here, each with its tests:
+`5a679d8` (#30672, a run ended by a stop is recorded as `stopped`, not `done`) and
+`5941a9c` (#32231, `POST /setup-clone` saves only the repository part of the pasted
+URL, so a token pasted after the repository name never reaches `config.json`). The
+wheel copy's other changes since then are test relocations into its own `tests/` and
+comment rewording (#30076, #30043), which carry no behaviour. The test suite runs
+against Kiro Crew `main` `6d07df11cf` (`tests/requirements.txt`).
+
+Paths with a line number below refer to the snapshot commit. A **gap** is something the
 built-in gets from Kiro Crew that an external app has no public way to get yet;
 closing one is a Kiro Crew change (a generic, app-agnostic App Kit seam), not a
 change here.
@@ -91,7 +99,8 @@ Nothing in `backend/`, `spine/` or `profiles/` but `backend/_host.py` names
 through `_host._host_attr` (`importlib`), so a missing one never breaks the load
 (`tests/test_no_host_imports.py`). The app uses three seams of App Kit level 1 —
 `ctx.require_owner`, `ctx.data_dir` and `ctx.sdk_level` (read with `getattr`, with
-`ctx.http_app` and `ctx.health`) — and no `ctx.embed`, because the app embeds nothing.
+`ctx.http_app` and `ctx.health`) — plus `ctx.lifecycle` of level 2 when the gateway has
+it, and no `ctx.embed`, because the app embeds nothing.
 
 Everything else it needs is a gateway internal. Where the built-in bound a name at
 import, `_host.need` binds the gateway's own object, or, when the gateway has none, a
@@ -117,7 +126,7 @@ becomes unredacted text, and a missing tool gate never becomes an approved tool 
 | `kiro_crew.agent_sdk.native_allow_stores` | `home_leaves` | `profiles/github_repo/profile.py:293` | the credential stores a measurement child must not see | no measurement (refused) | a sensitive-path predicate on the context |
 | `kiro_crew.agent_spec_format` | `is_agent_spec_name`, `is_markdown_spec`, `spec_stem` | `spine/crew_runner.py:10` | spec-name rules for the crew runner's project-shadow refusal | no member run | part of the crew-member runtime |
 | `kiro_crew.apps` | `teardown` | `backend/routes.py:26` | `teardown.register_app_disable_hook` | not used: `on_shutdown` replaces it | none |
-| `kiro_crew.apps.manager` | `app_data_dir`, `app_lifecycle_lock`, `is_app_enabled` | `backend/routes.py:27` `backend/store.py:31` | `app_data_dir` (only for the stdio MCP server, which has no context), `app_lifecycle_lock` and `is_app_enabled` (the run-start admission that disable races) | the MCP server has no data root (its tools refuse); a run start is refused | the data directory as an environment variable for an app's own child processes; a lifecycle-lock/enabled read on the context |
+| `kiro_crew.apps.manager` | `app_data_dir`, `app_lifecycle_lock`, `is_app_enabled` | `backend/routes.py:27` `backend/store.py:31` | `app_data_dir` (only for the stdio MCP server, which has no context); `app_lifecycle_lock` and `is_app_enabled` (the run-start admission that disable races) only on a gateway below App Kit level 2, bound by `_host.fallback`, which records no gap when they are gone: a level-2 gateway admits through `ctx.lifecycle.admit` | the MCP server has no data root (its tools refuse); with neither `ctx.lifecycle` nor the lock a run start is refused (reported through `ctx.health`) | the data directory as an environment variable for an app's own child processes; the lifecycle read is `ctx.lifecycle` (#32648) |
 | `kiro_crew.atomic_write` | `atomic_write`, `read_json_or`, `replace_with_retry` | `backend/store.py:32` `spine/archive.py:33` `spine/git_safety.py:76` | `atomic_write`, `read_json_or`, `replace_with_retry` (Windows sharing-violation retries) | every read and write of the app's files refuses | a public file helper in the SDK |
 | `kiro_crew.config` | `KiroCrewConfig` | `backend/crew.py:11` `backend/runner.py:218` `spine/agent_runner.py:46` `spine/agent_runner_gate.py:24` | `KiroCrewConfig.load()`: the provider factory, the hook config, the sandbox mode, members | no run, no member, no gate (refused) | part of the agent-session and crew-member APIs |
 | `kiro_crew.config.loader` | `_session_work_dir`, `config_dir` | `profiles/github_repo/profile.py:1428` `spine/crew_runner.py:11` | `config_dir` (the data home the do-not-pollute fence covers) and `_session_work_dir` | no measurement, no member run | the data home path on the context; part of the crew-member runtime |
@@ -171,13 +180,20 @@ between a seam and the host's internals would be two policies.
    app-owned crew-member and agent-session API with the gateway's tool gate and
    transport floor, a scrubber and an audit sink reachable from an app's own threads
    and child processes, and a public file helper.
-2. **Adoption refuses `mcpServers`.** Kiro Crew's adoption APPLY step refuses a pinned
-   tree that declares `mcpServers` (`pinned_feature_unsupported`, E10 in
-   `docs/system-specs/modules/app-kit-platform.md`), and this app declares one, as the
-   built-in did. Dropping it would take six read-only tools away from every agent that
-   has them today, so it stays; **the adoption pin for `auto-improvement` must not be
-   added until adoption can carry an app's stdio MCP server** (the server runs from the
-   app's own tree, `backend/mcp_launch.py`, under the gateway's interpreter).
+2. **The MCP server's own-tool auto-approve after adoption.** Adoption now carries the
+   app's stdio MCP server (#32637, E10 in `docs/system-specs/modules/app-kit-platform.md`):
+   this tree starts it with a bare `python3` and `backend/mcp_launch.py`, the shape the
+   gateway anchors to the adopted root, with the built-in's server key, its six
+   `autoApprove` tools and no `env`, and Kiro Crew's own check accepts it
+   (`tests/test_manifest_contract.py::test_adoption_carries_the_server_from_this_tree`).
+   What adoption does not yet carry is the tool gate's trust in an app's OWN server:
+   it reads the built-in installs only (`execution.builtin_app_mcp_servers`), so after
+   adoption this server's six read-only tools would start asking for approval on a
+   governed host and on a harness that relies on the PreToolUse gate. Kiro Crew pins
+   that with `test_no_shipped_pin_names_a_built_in_that_ships_an_mcp_server`, so **the
+   adoption pin for `auto-improvement` must not be added until the core change that
+   carries that trust to an adopted record merges** (in flight as
+   `fix/adopted-app-own-mcp-autoapprove`) and removes that pin.
 3. **Core still names the app.** `apps/builtins/__init__.py:4` (`BUILTIN_NAMES`),
    `security_posture.py:583-612` and `security_posture_sinks_gateway.py:628-738`
    (posture rows naming the built-in's files), `sandbox_leaves.py:174-182` and
@@ -203,11 +219,15 @@ between a seam and the host's internals would be two policies.
    when the operator trusts it (`agent.apps_trusted`, or `agent.apps_allow_third_party`).
    For an existing user, Kiro Crew's adoption writes that grant for this repository; a
    fresh install goes through the normal trust dialog.
-5. **Run-start admission.** The built-in admitted a run under the app's lifecycle lock
-   after reading the enabled flag (`backend/routes.py:1493-1513`), so a disable racing
-   the start either sees the app off or stops the run it admitted. That stays, through
-   `apps.manager.app_lifecycle_lock` / `is_app_enabled`; a lifecycle read on the
-   context would replace them.
+5. **Run-start admission (closed on App Kit level 2).** The built-in admitted a run
+   under the app's lifecycle lock after reading the enabled flag
+   (`backend/routes.py:1493-1513`), so a disable racing the start either sees the app
+   off or stops the run it admitted. On a level-2 gateway the app asks
+   `ctx.lifecycle.admit` for exactly that, with the supervisor's stop count as its
+   check, and touches no private name; a timed-out admission is a retryable `409`
+   `app_busy`. Only a gateway below level 2 still goes through
+   `apps.manager.app_lifecycle_lock` / `is_app_enabled`
+   (`tests/test_run_start_admission.py`).
 6. **Agent self-registration.** The discovery runner writes its own agent spec into the
    kiro-cli agents directory under the shared agents-spec lock
    (`spine/agent_runner.py:744-788`); an agent-spec install seam would replace the
@@ -236,7 +256,11 @@ between a seam and the host's internals would be two policies.
     (`sessionOpenTiming`) before opening a NEW session; a resumed one opens at once.
     The App Kit gives an app no "the host lists this slot" signal; a launcher that
     fetches an unknown `sid` (or a create call on the SDK that returns once the host
-    lists the slot) would remove the wait.
+    lists the slot) would remove the wait. **Closed on App Kit level 2** (#32648): that
+    host's chat page waits (up to 5 s) for its own list to show a slot the app just
+    created before it opens it, so the page opens a new session at once when the host
+    exports `APP_SDK_LEVEL >= 2` (`ui/src/hostSdk.ts`, `hostSdkLevel`); the 1.5 s wait
+    is kept only below level 2.
 
 ## UI
 
@@ -260,7 +284,7 @@ paths, plural forms by `Intl.PluralRules`.
 | `chat-core/transport/sendTurn` | `ui/src/host/sendTurn.ts`, the receipt contract restated, over a wire that posts `/api/chat?ws=1` through the scoped client |
 | `utils/seedReceipt.settleSeedReceipt`, `utils/thunkError.isMissingSlotError` | `ui/src/host/seedReceipt.ts`, `ui/src/host/chat.ts`, the same rules |
 | `utils/ensureChatFolder`, `utils/sha256Hex` | `ui/src/host/ensureChatFolder.ts`, `ui/src/host/sha256Hex.ts`, unchanged |
-| `react-router-dom` `useNavigate('/chat')` | the chat launcher navigates, after a bounded wait for a new session (gap 12) |
+| `react-router-dom` `useNavigate('/chat')` | the chat launcher navigates; below App Kit level 2, after a bounded wait for a new session (gap 12) |
 | `autoImprovement.rulerNotReady`: "The ruler is not calibrated yet, so no improvement cycle will run." | "The ruler is not calibrated yet. It is only used to judge speed-ups; the runs started from this page fix bugs, and the repository's tests judge each fix instead." in all 12 locales. The old sentence was false: a run started from the page is a bug-track run (`track` is not writable through `PUT /config`), which skips the ruler (`spine/driver.py`, `run`), and nothing on the page writes the `ruler.json` the card reads |
 | `autoImprovement.intro`: "Measures a repository before it changes it: the metric is calibrated and proved first, ..." | "Fixes bugs in a repository and keeps only what its tests prove ..." in all 12 locales. The old wording described a perf-track run; a run started from the page is a bug-track run, which no ruler gates |
 
@@ -283,7 +307,8 @@ the hook manager, the members, the redactor and the file helpers are the real on
 | `test/test_pr_recipe.py` scanner cases | `tests/` | The "no security module" double is the gateway lacking `kiro_crew.security`, as the shim resolves it. |
 | Every other `test/test_ai_*`, `test_auto_improvement_*`, `test_bug_*`, `test_spine_json_extraction.py` | `tests/` | Import paths; `from conftest import ...` helpers come from `tests/symlink_capability.py`; Kiro Crew test helpers they import (`facade_mirror_scan.py`, `git_maintenance_helpers.py`, `stray_line_helpers.py`, `windows_sim.py`) are copied beside them. |
 | The auto-improvement cases of `test/test_owner_gate_round10_misc.py`, `test_git_tree_removal_windows.py`, `test_git_config_hooks.py`, `test_windows_replace_retry_sweep.py`, `test_owner_only_files.py`, `test_sandbox_launcher_refusal.py`, `test_sandbox_launcher_import_hoist.py`, `test_git_tmp_packs.py`, `test_env_allowlist_consolidation.py`, `test_handlers_auto_improvement_deny_notice.py` | `tests/test_deps_install_owner_gate.py`, `test_git_tree_removal_windows.py`, `test_git_safety_config_hooks.py`, `test_store_replace_retry.py`, `test_run_archive_owner_only.py`, `test_launcher_parity.py` (both launcher suites, with `sandbox_launcher_helpers.py`), `test_fetch_timeout_reaps_tmp_packs.py`, `test_measure_env_allowlist.py`, `test_agent_runner_deny_notice.py` | The app's cases only; the core halves stay in Kiro Crew. |
-| (none) | `tests/test_host_seams.py`, `tests/test_no_host_imports.py`, `tests/test_manifest_contract.py` | Every fail-closed path of the shim, the capability report, the owner gate, the data root, the hooks, the MCP launcher; only the shim reaches `kiro_crew`; manifest parity, the bundle's imports, the hooks loading through the gateway's own module loader and serving a request through its `RouteRegistry`, no hardcoded model id, an adoptable tree. |
+| (none) | `tests/test_host_seams.py`, `tests/test_no_host_imports.py`, `tests/test_manifest_contract.py` | Every fail-closed path of the shim, the capability report, the owner gate, the data root, the hooks, the MCP launcher; only the shim reaches `kiro_crew`; manifest parity, the bundle's imports, the hooks loading through the gateway's own module loader and serving a request through its `RouteRegistry`, no hardcoded model id, an adoptable tree, the MCP server accepted by Kiro Crew's own adoption check. |
+| (none) | `tests/test_run_start_admission.py` | Run start through `ctx.lifecycle.admit` (admitted, disabled, timed out, the host's real `AppLifecycleSDK`), never the private names on a level-2 gateway; the refusal and the capability report on a gateway with neither. |
 | `website/src/apps/auto-improvement/*.test.tsx`, `website/src/test/autoImprovement*.test.ts(x)` | `ui/tests/` | No Redux store or router; requests go through the stub host client (`ui/tests/stubs/`). |
 | The auto-improvement halves of `website/src/test/agentSessionFolderResolve.test.ts` and `agentSessionSeedReceipt.test.ts` | `ui/tests/agentSession.test.ts` | Against `ui/src/host/chat.ts`, plus resume. The folder-expand cases are gone with the call (gap 10). |
 | (none) | `ui/tests/externalSeams.test.tsx` | The chat endpoints' requests, the refusal mapping, the seed wire, catalog coverage and fallback, the host `Select`. |
@@ -302,7 +327,8 @@ neutral fixture when the built-in leaves.
 The release that adds adoption still ships the built-in. A user's built-in record moves
 onto this repository at the commit Kiro Crew pins, on the restart after the tree is
 fetched and verified; a record that cannot move keeps running the built-in copy,
-unchanged. For this app the pin waits on gap 2.
+unchanged. For this app the pin waits on gap 2 (the tool gate's own-server trust for an
+adopted record).
 
 ## Release handoff: one commit for both pins
 

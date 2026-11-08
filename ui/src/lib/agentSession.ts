@@ -33,21 +33,26 @@ import {
 } from '../host/chat'
 import { ensureChatFolder } from '../host/ensureChatFolder'
 import { settleSeedReceipt } from '../host/seedReceipt'
+import { hostSdkLevel } from '../hostSdk'
 
 /**
- * How long a NEW session waits before the chat launcher opens it.
+ * How long a NEW session waits before the chat launcher opens it, on an older host.
  *
- * The launcher (`useChatLauncher().openChat({slotKey})`) opens `/chat?sid=<key>`,
- * and the dashboard keeps that `sid` only when its own session list already holds
- * the slot. A slot this app created through the scoped client moments earlier reaches
- * that list through the gateway's create broadcast, so an immediate open can lose the
- * race: measured on a capture gateway, the chat page dropped the `sid` and stayed on
- * the previously active chat, while the same open 1.5 s later landed on the new
- * session. The App Kit gives an app no signal for "the host has this slot", so this
- * is a bounded wait, not a barrier (PORTING.md, gap 12). A resumed session is already
- * in the list and opens at once. Mutable only so the tests can set it to 0.
+ * The launcher (`useChatLauncher().openChat({slotKey})`) opens `/chat?sid=<key>`.
+ * From App Kit level 2 the host's chat page waits (bounded) for its session list to
+ * show a slot the app just created before it opens it, so the app opens at once
+ * there. An older host keeps that `sid` only when its list already holds the slot,
+ * and a slot this app created moments earlier reaches the list through the gateway's
+ * create broadcast: measured on a capture gateway, an immediate open dropped the
+ * `sid` and stayed on the previously active chat, while the same open 1.5 s later
+ * landed on the new session. So below level 2 this is a bounded wait, not a barrier.
+ * A resumed session is already in the list and opens at once. Mutable only so the
+ * tests can set it to 0.
  */
 export const sessionOpenTiming = { newSessionSettleMs: 1500 }
+
+/** The App Kit level whose chat launcher waits for a just-created session itself. */
+const LAUNCHER_AWAITS_NEW_SESSION_LEVEL = 2
 
 /** One folder per target repository groups every session from its runs. */
 const FOLDER_PREFIX = 'Auto-Improve - '
@@ -293,7 +298,10 @@ export function useAgentSession(): UseAgentSession {
         // The launcher opens /chat on this slot. The built-in also asked the sidebar
         // to expand the app's folder (`requestSlotFolderOpen`); the App Kit has no
         // such call, so a collapsed folder stays collapsed (PORTING.md, UI gaps).
-        if (sessionOpenTiming.newSessionSettleMs > 0) {
+        if (
+          hostSdkLevel() < LAUNCHER_AWAITS_NEW_SESSION_LEVEL &&
+          sessionOpenTiming.newSessionSettleMs > 0
+        ) {
           await new Promise((resolve) => setTimeout(resolve, sessionOpenTiming.newSessionSettleMs))
         }
         openChat({ slotKey: slot.key })

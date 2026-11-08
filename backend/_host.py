@@ -6,9 +6,10 @@ needs two kinds of host surface:
 
 1. **The App Kit context** handed to its hooks (``ctx``): the data directory
    (``ctx.data_dir``), the owner gate (``ctx.require_owner``, App Kit level 1),
-   the seam level (``ctx.sdk_level``), health reporting (``ctx.health``) and
-   the gateway's aiohttp application (``ctx.http_app``, granted because the
-   manifest declares routes). These are public seams. Each is read off the
+   the seam level (``ctx.sdk_level``), health reporting (``ctx.health``), the
+   app's own lifecycle (``ctx.lifecycle``, App Kit level 2) and the gateway's
+   aiohttp application (``ctx.http_app``, granted because the manifest declares
+   routes). These are public seams. Each is read off the
    context with ``getattr`` and has a fallback that is never MORE permissive
    than the host: no owner gate refuses every caller, the owner included.
 
@@ -263,6 +264,19 @@ def require_module(module: str) -> Any:
     )
 
 
+def fallback(module: str, name: str) -> Any:
+    """The gateway's ``kiro_crew.<module>.<name>`` for an older host, or a stand-in.
+
+    For a name the app uses only on a gateway that lacks the public seam replacing
+    it (``apps.manager.app_lifecycle_lock`` where there is no ``ctx.lifecycle``).
+    The stand-in refuses like :func:`need`'s, but a missing name is NOT recorded:
+    a host that moved it also has the seam, so it is no capability gap there.
+    :func:`capability_issues` reports the case where neither is present.
+    """
+    value = _host_attr(_qualify(module), name)
+    return value if value is not None else Unavailable(f"{_qualify(module)}.{name}")
+
+
 def missing_names() -> list[str]:
     """Every host name a :func:`need` call could not resolve, sorted."""
     with _missing_lock:
@@ -353,6 +367,16 @@ async def require_owner(ctx: Any, request: Any, operation: str) -> Any | None:
     return await gate(request, operation)
 
 
+def lifecycle(ctx: Any) -> Any | None:
+    """``ctx.lifecycle`` (App Kit level 2), or ``None`` on an older host.
+
+    A hand-built context carries ``lifecycle=None`` as well, so presence is read
+    off the object, never inferred from ``ctx.sdk_level`` alone.
+    """
+    seam = getattr(ctx, "lifecycle", None) if ctx is not None else None
+    return seam if callable(getattr(seam, "admit", None)) else None
+
+
 def http_app(ctx: Any) -> Any | None:
     """The gateway's aiohttp application, when the context carries it."""
     return getattr(ctx, "http_app", None)
@@ -392,6 +416,11 @@ def capability_issues(ctx: Any) -> list[str]:
         )
     elif not callable(getattr(ctx, "require_owner", None)):
         issues.append("no ctx.require_owner: every owner-only action is refused")
+    if lifecycle(ctx) is None and not (
+        fallback("apps.manager", "app_lifecycle_lock")
+        and fallback("apps.manager", "is_app_enabled")
+    ):
+        issues.append("no ctx.lifecycle and no app lifecycle lock: every run start is refused")
     if http_app(ctx) is None:
         issues.append(
             "no ctx.http_app: the run has no member session runtime and PR watchers "

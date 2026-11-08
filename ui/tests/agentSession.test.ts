@@ -25,7 +25,7 @@ import { act, renderHook, waitFor } from '@testing-library/react'
 
 import type { SendReceipt } from '../src/host/sendTurn'
 import { i18nT } from '../src/i18n'
-import { stubOpenChat } from './stubs/app-sdk'
+import { setStubSdkLevel, stubOpenChat } from './stubs/app-sdk'
 
 const chat = vi.hoisted(() => ({
   listChatFolders: vi.fn(),
@@ -99,6 +99,7 @@ beforeEach(() => {
 afterEach(() => {
   vi.unstubAllGlobals()
   sessionOpenTiming.newSessionSettleMs = 1500
+  setStubSdkLevel(1)
 })
 
 describe('resolveFolderId', () => {
@@ -146,11 +147,18 @@ describe('resolveFolderId', () => {
 })
 
 describe('the new session', () => {
-  it('waits for the host to list a new slot before opening it, and opens a resumed one at once', async () => {
+  it('waits for the host to list a new slot before opening it on a host below level 2', async () => {
     sessionOpenTiming.newSessionSettleMs = 50
     const started = Date.now()
     await open()
     expect(Date.now() - started).toBeGreaterThanOrEqual(45)
+    expect(stubOpenChat).toHaveBeenCalledWith({ slotKey: 'slot-1' })
+  })
+
+  it('opens a new slot at once on a level-2 host, whose launcher waits for it', async () => {
+    setStubSdkLevel(2)
+    sessionOpenTiming.newSessionSettleMs = 60_000
+    await open()
     expect(stubOpenChat).toHaveBeenCalledWith({ slotKey: 'slot-1' })
   })
 

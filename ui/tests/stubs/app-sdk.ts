@@ -50,7 +50,11 @@ export function compareText(a: string, b: string): number {
   return new Intl.Collator(locale, { numeric: true, sensitivity: 'base' }).compare(a, b)
 }
 
-export const APP_SDK_LEVEL = 1
+// A live binding, so a test can model another host level (`setStubSdkLevel`).
+export let APP_SDK_LEVEL = 1
+export function setStubSdkLevel(level: number): void {
+  APP_SDK_LEVEL = level
+}
 
 class ScopedError extends Error {
   status: number

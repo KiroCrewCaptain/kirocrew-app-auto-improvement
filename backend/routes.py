@@ -40,8 +40,10 @@ from . import (
     store,
 )
 
-app_lifecycle_lock = _host.need("apps.manager", "app_lifecycle_lock")
-is_app_enabled = _host.need("apps.manager", "is_app_enabled")
+# Only for a gateway below App Kit level 2, which has no ``ctx.lifecycle``
+# (:func:`_admit_run_start`).
+app_lifecycle_lock = _host.fallback("apps.manager", "app_lifecycle_lock")
+is_app_enabled = _host.fallback("apps.manager", "is_app_enabled")
 redact = _host.need("security", "redact")
 
 logger = logging.getLogger(__name__)
@@ -1487,6 +1489,61 @@ async def _handle_health(_request: web.Request) -> web.StreamResponse:
 # ── the run engine (start / status / stop) ───────────────────────────────────
 
 
+async def _admit_run_start() -> tuple[int | None, web.Response | None]:
+    """``(stop count, None)`` when a run may start now, else ``(None, refusal)``.
+
+    Admission reads the app's switch under its lifecycle lock, which a disable holds
+    across its stop hook and the ``enabled`` write. Either this sees the app disabled,
+    or the stop count it records predates that hook, so the hook's stop makes
+    ``start`` refuse. The lock is held only for that short read, never across the
+    driver build. ``ctx.lifecycle.admit`` (App Kit level 2) does exactly that; a
+    gateway below level 2 has no such seam, so there the app takes the same lock
+    through the gateway's own names.
+    """
+
+    def _stop_seq() -> int:
+        return runner.get_supervisor().stop_seq()
+
+    disabled = web.json_response(
+        {"code": "app_disabled", "error": f"{store.APP_NAME} is disabled"}, status=403
+    )
+    seam = _host.lifecycle(_host.bound())
+    if seam is not None:
+        admission = await seam.admit(_stop_seq)
+        if admission.admitted:
+            return admission.value, None
+        if admission.timed_out:
+            # The disable, update or uninstall holding the lock outlasted the deadline.
+            return None, web.json_response(
+                {
+                    "code": "app_busy",
+                    "error": f"{store.APP_NAME} is being switched off or updated; try again",
+                },
+                status=409,
+            )
+        return None, disabled
+
+    if not (app_lifecycle_lock and is_app_enabled):
+        return None, web.json_response(
+            {
+                "code": "app_disabled",
+                "error": "this Kiro Crew gateway cannot admit a run: it has no app lifecycle",
+            },
+            status=403,
+        )
+
+    def _admit() -> int | None:
+        if not is_app_enabled(store.APP_NAME):
+            return None
+        return _stop_seq()
+
+    async with app_lifecycle_lock(store.APP_NAME):
+        admitted_at = await asyncio.to_thread(_admit)
+    if admitted_at is None:
+        return None, disabled
+    return admitted_at, None
+
+
 async def _handle_run_start(request: web.Request) -> web.StreamResponse:
     """Start a run from the config ON DISK.
 
@@ -1500,21 +1557,9 @@ async def _handle_run_start(request: web.Request) -> web.StreamResponse:
         return owner_denied
     await _audit_owner_route_allowed(request, "auto_improvement.run_start")
 
-    # Admit under the app's lifecycle lock, which disable holds across its stop hook and
-    # the `enabled` write. Either this sees the app disabled, or the stop count it records
-    # predates that hook, so the hook's stop makes `start` refuse. Held only for this
-    # short read, never across the driver build.
-    def _admit() -> int | None:
-        if not is_app_enabled(store.APP_NAME):
-            return None
-        return runner.get_supervisor().stop_seq()
-
-    async with app_lifecycle_lock(store.APP_NAME):
-        admitted_at = await asyncio.to_thread(_admit)
-    if admitted_at is None:
-        return web.json_response(
-            {"code": "app_disabled", "error": f"{store.APP_NAME} is disabled"}, status=403
-        )
+    admitted_at, refusal = await _admit_run_start()
+    if refusal is not None:
+        return refusal
 
     # Read the config INSIDE the lock, together with the start it feeds. Read outside, a
     # retarget landing between the read and the start means the run operates on the repo

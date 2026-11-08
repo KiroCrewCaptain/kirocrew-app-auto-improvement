@@ -1,3 +1,4 @@
+import * as sdk from "@kirocrew/app-sdk";
 import { activeLocale, useAppApi, useChatLauncher, useImeGuard, useLanguageGeneration } from "@kirocrew/app-sdk";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -1709,7 +1710,7 @@ function NativeSelect({ options, optionLabels, value, onChange, clearLabel, disa
 }
 // src/hostSdk.ts
 /**
-* Host names added at App Kit level 1, feature-detected.
+* Host names added at App Kit level 1 or later, feature-detected.
 *
 * A named import of an export the host's module does not have fails the whole
 * bundle at link time, so a host older than these seams would show a broken page
@@ -1719,6 +1720,11 @@ function NativeSelect({ options, optionLabels, value, onChange, clearLabel, disa
 */
 /** The host's inline dropdown, or a native `<select>` on a host without one. */
 var Select = ("Select" in ui ? ui.Select : void 0) ?? NativeSelect;
+/** The host's App Kit seam level; 0 on a host older than the `APP_SDK_LEVEL` export. */
+function hostSdkLevel() {
+	const level = "APP_SDK_LEVEL" in sdk ? sdk.APP_SDK_LEVEL : void 0;
+	return typeof level === "number" && Number.isInteger(level) ? level : 0;
+}
 // src/SetupPanel.tsx
 /** Render one activity item as a single readable line. Exported for tests. */
 function activityLine(a) {
@@ -2351,19 +2357,22 @@ async function settleSeedReceipt(receipt, slotKey) {
 }
 // src/lib/agentSession.ts
 /**
-* How long a NEW session waits before the chat launcher opens it.
+* How long a NEW session waits before the chat launcher opens it, on an older host.
 *
-* The launcher (`useChatLauncher().openChat({slotKey})`) opens `/chat?sid=<key>`,
-* and the dashboard keeps that `sid` only when its own session list already holds
-* the slot. A slot this app created through the scoped client moments earlier reaches
-* that list through the gateway's create broadcast, so an immediate open can lose the
-* race: measured on a capture gateway, the chat page dropped the `sid` and stayed on
-* the previously active chat, while the same open 1.5 s later landed on the new
-* session. The App Kit gives an app no signal for "the host has this slot", so this
-* is a bounded wait, not a barrier (PORTING.md, gap 12). A resumed session is already
-* in the list and opens at once. Mutable only so the tests can set it to 0.
+* The launcher (`useChatLauncher().openChat({slotKey})`) opens `/chat?sid=<key>`.
+* From App Kit level 2 the host's chat page waits (bounded) for its session list to
+* show a slot the app just created before it opens it, so the app opens at once
+* there. An older host keeps that `sid` only when its list already holds the slot,
+* and a slot this app created moments earlier reaches the list through the gateway's
+* create broadcast: measured on a capture gateway, an immediate open dropped the
+* `sid` and stayed on the previously active chat, while the same open 1.5 s later
+* landed on the new session. So below level 2 this is a bounded wait, not a barrier.
+* A resumed session is already in the list and opens at once. Mutable only so the
+* tests can set it to 0.
 */
 var sessionOpenTiming = { newSessionSettleMs: 1500 };
+/** The App Kit level whose chat launcher waits for a just-created session itself. */
+var LAUNCHER_AWAITS_NEW_SESSION_LEVEL = 2;
 /** One folder per target repository groups every session from its runs. */
 var FOLDER_PREFIX = "Auto-Improve - ";
 /** Keep slot titles short enough to read in the folder's session list. */
@@ -2499,7 +2508,7 @@ function useAgentSession() {
 					title,
 					url
 				});
-				if (sessionOpenTiming.newSessionSettleMs > 0) await new Promise((resolve) => setTimeout(resolve, sessionOpenTiming.newSessionSettleMs));
+				if (hostSdkLevel() < LAUNCHER_AWAITS_NEW_SESSION_LEVEL && sessionOpenTiming.newSessionSettleMs > 0) await new Promise((resolve) => setTimeout(resolve, sessionOpenTiming.newSessionSettleMs));
 				openChat({ slotKey: slot.key });
 				return record;
 			} catch (e) {

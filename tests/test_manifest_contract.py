@@ -207,6 +207,19 @@ class TestTheManifest:
         assert (APP_ROOT / entry["args"][0]).is_file()
         assert not any("kiro_crew" in arg for arg in entry["args"])
 
+    def test_adoption_carries_the_server_from_this_tree(self) -> None:
+        """Kiro Crew's own E10 check (``adopted_mcp_servers_refusal``) accepts this
+        tree's server against the built-in's declaration: a bare ``python3`` and a
+        ``.py`` launcher inside the tree, no tool or ``env`` entry beyond the
+        built-in's. A ``-m`` launch, which would run the wheel copy, is refused."""
+        from kiro_crew.apps.builtin_adoption_mcp import adopted_mcp_servers_refusal
+        from kiro_crew.apps.manifest import AppManifest
+
+        ours = AppManifest.from_json_file(APP_ROOT / "app.json")
+        wheel = AppManifest.from_dict(_builtin())
+        assert adopted_mcp_servers_refusal(ours, APP_ROOT, wheel) is None
+        assert adopted_mcp_servers_refusal(wheel, APP_ROOT, wheel) == "pinned_feature_unsupported"
+
     def test_the_page_carries_no_glyph_of_its_own(self) -> None:
         """The legacy route and sidebar glyph come from Kiro Crew's pin, not from here."""
         assert _manifest()["ui"]["pages"] == [
