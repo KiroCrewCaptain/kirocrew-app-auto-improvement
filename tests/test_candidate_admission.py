@@ -192,13 +192,19 @@ def test_a_branch_moved_during_the_check_refuses(tmp_path, monkeypatch, spawns):
     driver, winner = _driver(tmp_path, monkeypatch, "admitted")
     tip = _tip(driver)
 
-    def commit_then_admit(argv, *, input, stdout, **kwargs):
-        _git(["commit", "-q", "--allow-empty", "-m", "x"], driver.clone, config=_IDENTITY)
-        digest = hashlib.sha256(input).hexdigest()
-        stdout.write(json.dumps({"request_sha256": digest, "status": "admitted"}).encode())
-        return SimpleNamespace(returncode=0)
+    class CommitThenAdmit:
+        returncode = 0
 
-    monkeypatch.setattr(A, "run_limited", commit_then_admit)
+        def __init__(self, argv, *, stdout, **kwargs):
+            self.stdout = stdout
+
+        def communicate(self, request, timeout):
+            _git(["commit", "-q", "--allow-empty", "-m", "x"], driver.clone, config=_IDENTITY)
+            digest = hashlib.sha256(request).hexdigest()
+            self.stdout.write(json.dumps({"request_sha256": digest, "status": "admitted"}).encode())
+            return None, None
+
+    monkeypatch.setattr(A, "popen_limited", CommitThenAdmit)
     assert A.admit_candidate(driver, winner) is False
     assert (
         _note(driver, winner)[1]
@@ -276,18 +282,36 @@ def test_a_check_that_leaves_git_unable_to_read_the_clone_refuses(tmp_path, monk
     assert row.note == "candidate admission refused: git could not read the clone"
 
 
-@pytest.mark.parametrize(
-    ("error", "why"),
-    [
-        (subprocess.TimeoutExpired("checker", A.TIMEOUT_S), "timed out"),
-        (RuntimeError("no sandbox backend"), "could not run"),
-    ],
-)
-def test_a_checker_that_cannot_answer_refuses(tmp_path, monkeypatch, spawns, error, why):
+def test_a_checker_that_cannot_run_refuses(tmp_path, monkeypatch, spawns):
     driver, winner = _driver(tmp_path, monkeypatch, "admitted")
-    monkeypatch.setattr(A, "run_limited", Mock(side_effect=error))
+    monkeypatch.setattr(A, "popen_limited", Mock(side_effect=RuntimeError("no sandbox backend")))
     assert A.admit_candidate(driver, winner) is False
-    assert _note(driver, winner)[1] == f"candidate admission refused: {why}"
+    assert _note(driver, winner)[1] == "candidate admission refused: could not run"
+
+
+def test_a_timed_out_checker_group_is_killed_before_the_clone_is_checked(
+    tmp_path, monkeypatch, spawns
+):
+    """A timeout of the launcher alone would leave the checker it forked running, with
+    write access to the clone, while the clone is compared and rolled back."""
+    driver, winner = _driver(tmp_path, monkeypatch, "admitted")
+    events: list[str] = []
+    proc = Mock(returncode=None)
+    proc.communicate.side_effect = subprocess.TimeoutExpired("checker", A.TIMEOUT_S)
+    proc.wait.side_effect = lambda: events.append("reaped")
+    popen = Mock(return_value=proc)
+    monkeypatch.setattr(A, "popen_limited", popen)
+    monkeypatch.setattr(A, "kill_popen_tree", lambda p: events.append(f"killed {p is proc}"))
+    reads = A._clone_state
+    monkeypatch.setattr(A, "_clone_state", lambda d: (events.append("clone read"), reads(d))[1])
+    monkeypatch.setattr(
+        driver, "_retire_if_unsafe", Mock(side_effect=lambda stage: events.append("probe"))
+    )
+    assert A.admit_candidate(driver, winner) is False
+    assert _note(driver, winner)[1] == "candidate admission refused: timed out"
+    assert popen.call_args.kwargs["start_new_session"] is True
+    assert proc.communicate.call_args.kwargs["timeout"] == A.TIMEOUT_S
+    assert events == ["clone read", "killed True", "reaped", "probe", "clone read"]
 
 
 @pytest.mark.parametrize("value", ["/bin/check", [], ["relative/check"], ["/bin/check", 1]])
