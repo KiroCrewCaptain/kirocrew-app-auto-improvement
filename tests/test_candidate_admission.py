@@ -303,7 +303,12 @@ def test_a_timed_out_checker_group_is_killed_before_the_clone_is_checked(
     monkeypatch.setattr(A, "popen_limited", popen)
     monkeypatch.setattr(A, "kill_popen_tree", lambda p: events.append(f"killed {p is proc}"))
     reads = A._clone_state
-    monkeypatch.setattr(A, "_clone_state", lambda d: (events.append("clone read"), reads(d))[1])
+
+    def read_clone(d):
+        events.append("clone read")
+        return reads(d)
+
+    monkeypatch.setattr(A, "_clone_state", read_clone)
     monkeypatch.setattr(
         driver, "_retire_if_unsafe", Mock(side_effect=lambda stage: events.append("probe"))
     )
