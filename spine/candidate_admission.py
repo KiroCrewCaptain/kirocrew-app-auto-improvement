@@ -26,7 +26,8 @@ if TYPE_CHECKING:
     from .contracts import Proposal
     from .driver import Driver
 
-run_limited = _host.need("sandbox", "run_limited")
+kill_popen_tree = _host.need("platform_compat", "kill_popen_tree")
+popen_limited = _host.need("sandbox", "popen_limited")
 sandboxed_spawn_argv = _host.need("sandbox", "sandboxed_spawn_argv")
 
 MAX_RESPONSE_BYTES = 65536
@@ -53,22 +54,32 @@ def parse_command(value: object) -> tuple[str, ...] | None:
 
 
 def _ask(argv: tuple[str, ...], request: bytes) -> tuple[int, bytes]:
-    """Run the checker in the gate's sandbox; return its exit code and bounded stdout."""
+    """Run the checker in the gate's sandbox; return its exit code and bounded stdout.
+
+    The checker leads its own process group, and a timeout kills that whole group before
+    this returns, so nothing it started still runs when the clone is checked.
+    """
     sandboxed, env, cleanup = sandboxed_spawn_argv(
         list(argv), mode="strict", extra_hidden_dirs=write_protected_targets()
     )
     try:
         # Output goes to a file, not a pipe, so a runaway checker cannot fill memory.
         with tempfile.TemporaryFile() as out:
-            proc = run_limited(
+            proc = popen_limited(
                 sandboxed,
-                input=request,
+                stdin=subprocess.PIPE,
                 stdout=out,
                 stderr=subprocess.DEVNULL,
                 cwd=str(Path(argv[0]).parent),
-                timeout=TIMEOUT_S,
                 env=strip_credential_env(env),
+                start_new_session=True,
             )
+            try:
+                proc.communicate(request, timeout=TIMEOUT_S)
+            except subprocess.TimeoutExpired:
+                kill_popen_tree(proc)
+                proc.wait()
+                raise
             out.seek(0)
             return proc.returncode, out.read(MAX_RESPONSE_BYTES + 1)
     finally:

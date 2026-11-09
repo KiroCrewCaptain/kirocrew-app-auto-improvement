@@ -39,8 +39,10 @@ answer keeps the candidate (`spine/candidate_admission.py`, `spine/driver.py`,
 `backend/runner.py`, `docs/MANUAL.md` section 7, `tests/test_candidate_admission.py`).
 The checker runs in the tests' sandbox, so `write_protected_targets` moved from
 `profiles/github_repo/profile.py` to `spine/push_policy.py`, which both spawns share,
-and `run_limited` and `sandboxed_spawn_argv` resolve through `_host.need` as the other
-`kiro_crew.sandbox` names do.
+and `popen_limited` and `sandboxed_spawn_argv` resolve through `_host.need` as the other
+`kiro_crew.sandbox` names do. The checker leads its own process group, and a timeout
+kills the whole group (`platform_compat.kill_popen_tree`, through `_host.need`) before
+the clone is checked, as kirodotdev/KiroCrew#32301 does.
 
 Paths with a line number below refer to the snapshot commit. A **gap** is something the
 built-in gets from Kiro Crew that an external app has no public way to get yet;

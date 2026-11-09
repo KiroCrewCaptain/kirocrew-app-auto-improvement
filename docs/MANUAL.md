@@ -283,8 +283,11 @@ starting. When it is set, both tracks ask the checker before a candidate is comm
 
 The checker runs in the same `strict` sandbox as the target repository's tests, from its
 own directory, with credential directories, credential environment variables and
-`~/.kiro/crew` hidden. Install it outside `~/.kiro/crew`, and give it evidence it can
-read without credentials. It can only add a refusal: every built-in gate still runs.
+`~/.kiro/crew` hidden. It runs in its own process group: at the 60-second limit that whole
+group is stopped before the clone is checked, so a process the checker started stays
+inside the limit only if it stays in the group. Install it outside `~/.kiro/crew`, and
+give it evidence it can read without credentials. It can only add a refusal: every
+built-in gate still runs.
 
 ---
 
