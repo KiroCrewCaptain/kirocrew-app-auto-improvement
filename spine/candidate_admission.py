@@ -9,10 +9,14 @@ object whose ``request_sha256`` is the SHA-256 of the exact request bytes and wh
 
 from __future__ import annotations
 
+import contextlib
 import hashlib
 import json
+import os
+import signal
 import subprocess
 import tempfile
+import time
 import uuid
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -27,22 +31,31 @@ if TYPE_CHECKING:
     from .driver import Driver
 
 kill_popen_tree = _host.need("platform_compat", "kill_popen_tree")
+kill_process_group = _host.need("platform_compat", "kill_process_group")
+pgroup_exists = _host.need("platform_compat", "pgroup_exists")
 popen_limited = _host.need("sandbox", "popen_limited")
 sandboxed_spawn_argv = _host.need("sandbox", "sandboxed_spawn_argv")
 
 MAX_RESPONSE_BYTES = 65536
 TIMEOUT_S = 60
 
+#: Only POSIX gives the checker a process group that can be killed whole once the check
+#: ends. On Windows a process the checker left running would outlive the check, so a
+#: configured checker refuses the run there instead.
+SUPPORTED = os.name == "posix"
+
 
 def parse_command(value: object) -> tuple[str, ...] | None:
     """The configured checker argv, or ``None`` when unset.
 
-    A malformed value raises, so the run refuses to start: falling back to "no checker",
-    as the budget keys fall back to a default, would keep candidates the operator asked
-    to have checked.
+    A malformed value, or any value where the checker is not supported, raises, so the run
+    refuses to start: falling back to "no checker", as the budget keys fall back to a
+    default, would keep candidates the operator asked to have checked.
     """
     if value is None:
         return None
+    if not SUPPORTED:
+        raise ValueError("candidateAdmissionCommand is not supported on Windows")
     if (
         not isinstance(value, list)
         or not value
@@ -53,11 +66,47 @@ def parse_command(value: object) -> tuple[str, ...] | None:
     return tuple(value)
 
 
+def _exited_unreaped(proc: subprocess.Popen[bytes], seconds: float) -> bool:
+    """Whether the checker exited within ``seconds``. Where ``os.waitid`` exists it is not
+    reaped, so its pid still names its process group when :func:`_stop_group` kills it."""
+    waitid = getattr(os, "waitid", None)
+    if waitid is None:
+        try:
+            proc.wait(timeout=seconds)
+        except subprocess.TimeoutExpired:
+            return False
+        return True
+    end = time.monotonic() + seconds
+    while True:
+        try:
+            if waitid(os.P_PID, proc.pid, os.WEXITED | os.WNOHANG | os.WNOWAIT) is not None:
+                return True
+        except ChildProcessError:
+            return True
+        if time.monotonic() >= end:
+            return False
+        time.sleep(0.02)
+
+
+def _stop_group(proc: subprocess.Popen[bytes]) -> None:
+    """Kill whatever the check left in the checker's process group, then reap the checker.
+
+    The group is killed while the checker is unreaped, so its id cannot name another group.
+    Where the checker was already reaped, the group is killed only while a member still holds
+    its id, which keeps it from being reissued.
+    """
+    kill_popen_tree(proc)
+    proc.wait()
+    if os.name == "posix" and pgroup_exists(proc.pid):
+        with contextlib.suppress(OSError, ValueError):
+            kill_process_group(proc.pid, signal.SIGKILL)
+
+
 def _ask(argv: tuple[str, ...], request: bytes) -> tuple[int, bytes]:
     """Run the checker in the gate's sandbox; return its exit code and bounded stdout.
 
-    The checker leads its own process group, and a timeout kills that whole group before
-    this returns, so nothing it started still runs when the clone is checked.
+    The checker leads its own process group, and whatever it answers that whole group is
+    killed before this returns, so nothing it started still runs when the clone is checked.
     """
     sandboxed, env, cleanup = sandboxed_spawn_argv(
         list(argv), mode="strict", extra_hidden_dirs=write_protected_targets()
@@ -75,11 +124,16 @@ def _ask(argv: tuple[str, ...], request: bytes) -> tuple[int, bytes]:
                 start_new_session=True,
             )
             try:
-                proc.communicate(request, timeout=TIMEOUT_S)
-            except subprocess.TimeoutExpired:
-                kill_popen_tree(proc)
-                proc.wait()
-                raise
+                # The request is a few hundred bytes, well inside a pipe buffer, so this
+                # write cannot wait on a checker that never reads it.
+                if proc.stdin is not None:
+                    with contextlib.suppress(BrokenPipeError), proc.stdin:
+                        proc.stdin.write(request)
+                exited = _exited_unreaped(proc, TIMEOUT_S)
+            finally:
+                _stop_group(proc)
+            if not exited:
+                raise subprocess.TimeoutExpired(list(argv), TIMEOUT_S)
             out.seek(0)
             return proc.returncode, out.read(MAX_RESPONSE_BYTES + 1)
     finally:
