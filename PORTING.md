@@ -23,9 +23,11 @@ KiroCrew `main` `55439d8770`:
   `agentSessionFolderResolve.test.ts` and `agentSessionSeedReceipt.test.ts`.
 
 Fixes the wheel copy took after that commit are ported here, each with its tests:
-`5a679d8` (#30672, a run ended by a stop is recorded as `stopped`, not `done`) and
+`5a679d8` (#30672, a run ended by a stop is recorded as `stopped`, not `done`),
 `5941a9c` (#32231, `POST /setup-clone` saves only the repository part of the pasted
-URL, so a token pasted after the repository name never reaches `config.json`). The
+URL, so a token pasted after the repository name never reaches `config.json`), and
+kirodotdev/KiroCrew#33449 (a tighter push destination check in
+`backend/clone_setup.py`, with its tests in `tests/test_dogfood_learnings_clone.py`). The
 wheel copy's other changes since then are test relocations into its own `tests/` and
 comment rewording (#30076, #30043), which carry no behaviour. The test suite runs
 against Kiro Crew `main` `6d07df11cf` (`tests/requirements.txt`).

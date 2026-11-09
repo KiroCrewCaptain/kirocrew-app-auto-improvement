@@ -28,7 +28,7 @@ import stat
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import unquote, urlparse
 
 
 from ..spine.git_safety import GIT_SAFE_CONFIG, hook_off_args, require_pinned
@@ -995,6 +995,11 @@ _ALLOWED_REMOTE_HOSTS = frozenset({"github.com"})
 _WINDOWS_DRIVE_PATH = re.compile(r"[A-Za-z]:[\\/].*\S")
 
 
+def _is_unc_shape(raw: str) -> bool:
+    """Two leading separators, either style: the shape Windows reads as a network share."""
+    return len(raw) >= 2 and raw[0] in "\\/" and raw[1] in "\\/"
+
+
 def _is_allowed_remote(url: str) -> bool:
     """Whether a stored ``origin_url`` is safe to use as a push destination.
 
@@ -1012,7 +1017,9 @@ def _is_allowed_remote(url: str) -> bool:
     * A LOCAL path (``/tmp/x.git``, ``file://``, a relative path, or on Windows a drive path
       such as ``C:\\work\\repo.git``) is allowed: it cannot
       exfiltrate anywhere, it is what the app's own tests push to, and an operator pointing at
-      a local bare repo is a legitimate offline setup.
+      a local bare repo is a legitimate offline setup. A value git reads as remote is not
+      local: scp-like ``user@host:path``, ``file:`` without ``//``, a ``file://`` url with
+      a host other than ``localhost``, or on Windows a UNC path.
     * The ``DISABLED_NO_PUSH`` sentinel is refused — it is a marker, not a destination.
     """
     raw = (url or "").strip()
@@ -1029,7 +1036,20 @@ def _is_allowed_remote(url: str) -> bool:
         return True
     parsed = urlparse(raw)
     if parsed.scheme in ("", "file"):
-        # No network host to redirect to.
+        # Local only when git reads it as a local path that names no network host.
+        if raw.startswith("file://"):
+            # Judged on what git reads, the percent-decoded text after `file://`, not on
+            # urlparse's split: only `file:///path` and `file://localhost/path` name no host.
+            rest = unquote(raw[len("file://") :])
+            if rest.lower().startswith("localhost/"):
+                rest = rest[len("localhost") :]
+            return rest.startswith("/") and not (IS_WINDOWS and _is_unc_shape(rest))
+        # git's scp-like rule: a `:` before any `/` is ssh (`user@host:path`, `file:x`). On
+        # Windows a UNC path (`\\host\share`, `//host/share`) names a network host; on POSIX
+        # the same text is a local path.
+        colon, slash = raw.find(":"), raw.find("/")
+        if (colon != -1 and not -1 < slash < colon) or (IS_WINDOWS and _is_unc_shape(raw)):
+            return False
         return bool((parsed.path or raw).strip())
     if parsed.scheme not in ("https", "ssh"):
         # http:// (cleartext), git://, ftp://, … are never our push transport.
