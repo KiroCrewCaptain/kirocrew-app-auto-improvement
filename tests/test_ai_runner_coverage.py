@@ -751,10 +751,16 @@ class TestBuildDriver:
         assert FakeSpineDriver.instances[-1].kwargs["branch"] == "main"
 
     def test_the_admission_command_reaches_the_driver_and_a_malformed_one_refuses(
-        self, sup: Any, tmp_path: Path, _no_real_checkout: list[tuple[Path, str]]
+        self,
+        sup: Any,
+        tmp_path: Path,
+        _no_real_checkout: list[tuple[Path, str]],
+        monkeypatch: pytest.MonkeyPatch,
     ) -> None:
         from auto_improvement.backend.routes import _CONFIG_WRITABLE
+        from auto_improvement.spine import candidate_admission
 
+        monkeypatch.setattr(candidate_admission, "SUPPORTED", True)
         admit = str(tmp_path / "admit")
         config = self._config(tmp_path, candidateAdmissionCommand=[admit, "-q"])
         driver = self._locked(sup, config, _profile(tmp_path / "clone"))

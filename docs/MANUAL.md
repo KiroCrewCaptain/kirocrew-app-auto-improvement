@@ -262,7 +262,8 @@ through Connect. Rejected keys are echoed back rather than silently dropped.
 `candidateAdmissionCommand` is not settable through the config API; write it into the
 app's `config.json` as an argv list whose first element is an absolute path, for example
 `["/opt/checks/admit", "--strict"]`. A value of any other shape stops the run from
-starting. When it is set, both tracks ask the checker before a candidate is committed:
+starting, and so does any value on Windows, where the checker is not supported. When it
+is set, both tracks ask the checker before a candidate is committed:
 
 - The checker gets one JSON object on stdin: a fresh `request_id`, `base_sha`, `branch`,
   `candidate_id`, `patch_sha256`, `profile_id`, `track`, `metric` and `direction`.
@@ -283,11 +284,11 @@ starting. When it is set, both tracks ask the checker before a candidate is comm
 
 The checker runs in the same `strict` sandbox as the target repository's tests, from its
 own directory, with credential directories, credential environment variables and
-`~/.kiro/crew` hidden. It runs in its own process group: at the 60-second limit that whole
-group is stopped before the clone is checked, so a process the checker started stays
-inside the limit only if it stays in the group. Install it outside `~/.kiro/crew`, and
-give it evidence it can read without credentials. It can only add a refusal: every
-built-in gate still runs.
+`~/.kiro/crew` hidden. It runs in its own process group, and when the check ends, by an
+answer or at the 60-second limit, that whole group is stopped before the clone is
+checked: a process the checker left running is stopped with it unless it left the
+group. Install it outside `~/.kiro/crew`, and give it evidence it can read without
+credentials. It can only add a refusal: every built-in gate still runs.
 
 ---
 

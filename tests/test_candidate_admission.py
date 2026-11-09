@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 import hashlib
+import io
 import json
 import logging
-import subprocess
+import os
 import sys
 from pathlib import Path
 from types import SimpleNamespace
@@ -59,6 +60,60 @@ class ReachedCommit(Exception):
     """The candidate got as far as the provisional commit."""
 
 
+class _Stdin(io.BytesIO):
+    """A checker's stdin that keeps what was written after it is closed."""
+
+    def close(self) -> None:
+        self.request = self.getvalue()
+        super().close()
+
+
+def _fake_checker(monkeypatch, events: list[str], *, exits: bool, on_exit=None) -> None:
+    """Stand in for the checker process: record when it ends, is killed and is reaped."""
+
+    class Proc:
+        pid = 4242
+        returncode = None
+
+        def __init__(self, argv, *, stdout, **kwargs):
+            self.kwargs, self.out, self.stdin = kwargs, stdout, _Stdin()
+
+        def wait(self, timeout=None):
+            events.append("reaped")
+            self.returncode = 0 if exits else -9
+            return self.returncode
+
+    def exited(proc, seconds):
+        assert seconds == A.TIMEOUT_S and proc.kwargs["start_new_session"] is True
+        events.append("exited" if exits else "timed out")
+        if exits and on_exit is not None:
+            on_exit(proc.stdin.request, proc.out)
+        return exits
+
+    monkeypatch.setattr(A, "popen_limited", Proc)
+    monkeypatch.setattr(A, "_exited_unreaped", exited)
+    monkeypatch.setattr(A, "kill_popen_tree", lambda proc: events.append("group killed"))
+    monkeypatch.setattr(A, "pgroup_exists", lambda pgid: False)
+
+
+def _admit(request: bytes, stdout) -> None:
+    digest = hashlib.sha256(request).hexdigest()
+    stdout.write(json.dumps({"request_sha256": digest, "status": "admitted"}).encode())
+
+
+def _record_order(monkeypatch, driver: D.Driver, events: list[str]) -> None:
+    reads = A._clone_state
+
+    def read_clone(d):
+        events.append("clone read")
+        return reads(d)
+
+    monkeypatch.setattr(A, "_clone_state", read_clone)
+    monkeypatch.setattr(
+        driver, "_retire_if_unsafe", Mock(side_effect=lambda stage: events.append("probe"))
+    )
+
+
 @pytest.fixture
 def spawns(tmp_path, monkeypatch) -> list[dict]:
     """Record each sandbox request and run the checker unwrapped (the sandbox is not the
@@ -90,9 +145,7 @@ def _driver(tmp_path: Path, monkeypatch, mode: str | None) -> tuple[D.Driver, Pr
         id="p", ruler=SimpleNamespace(primary_name="m", direction="minimize")
     )
     driver.candidate_admission = (
-        None
-        if mode is None
-        else A.parse_command([sys.executable, "-I", str(script), mode, str(clone)])
+        None if mode is None else (sys.executable, "-I", str(script), mode, str(clone))
     )
     monkeypatch.setattr(driver, "head_sha", Mock(return_value="b" * 40))
     driver.stats = D.Stats()
@@ -192,19 +245,11 @@ def test_a_branch_moved_during_the_check_refuses(tmp_path, monkeypatch, spawns):
     driver, winner = _driver(tmp_path, monkeypatch, "admitted")
     tip = _tip(driver)
 
-    class CommitThenAdmit:
-        returncode = 0
+    def commit_then_admit(request, stdout):
+        _git(["commit", "-q", "--allow-empty", "-m", "x"], driver.clone, config=_IDENTITY)
+        _admit(request, stdout)
 
-        def __init__(self, argv, *, stdout, **kwargs):
-            self.stdout = stdout
-
-        def communicate(self, request, timeout):
-            _git(["commit", "-q", "--allow-empty", "-m", "x"], driver.clone, config=_IDENTITY)
-            digest = hashlib.sha256(request).hexdigest()
-            self.stdout.write(json.dumps({"request_sha256": digest, "status": "admitted"}).encode())
-            return None, None
-
-    monkeypatch.setattr(A, "popen_limited", CommitThenAdmit)
+    _fake_checker(monkeypatch, [], exits=True, on_exit=commit_then_admit)
     assert A.admit_candidate(driver, winner) is False
     assert (
         _note(driver, winner)[1]
@@ -296,25 +341,65 @@ def test_a_timed_out_checker_group_is_killed_before_the_clone_is_checked(
     write access to the clone, while the clone is compared and rolled back."""
     driver, winner = _driver(tmp_path, monkeypatch, "admitted")
     events: list[str] = []
-    proc = Mock(returncode=None)
-    proc.communicate.side_effect = subprocess.TimeoutExpired("checker", A.TIMEOUT_S)
-    proc.wait.side_effect = lambda: events.append("reaped")
-    popen = Mock(return_value=proc)
-    monkeypatch.setattr(A, "popen_limited", popen)
-    monkeypatch.setattr(A, "kill_popen_tree", lambda p: events.append(f"killed {p is proc}"))
-    reads = A._clone_state
-    monkeypatch.setattr(A, "_clone_state", lambda d: (events.append("clone read"), reads(d))[1])
-    monkeypatch.setattr(
-        driver, "_retire_if_unsafe", Mock(side_effect=lambda stage: events.append("probe"))
-    )
+    _fake_checker(monkeypatch, events, exits=False)
+    _record_order(monkeypatch, driver, events)
     assert A.admit_candidate(driver, winner) is False
     assert _note(driver, winner)[1] == "candidate admission refused: timed out"
-    assert popen.call_args.kwargs["start_new_session"] is True
-    assert proc.communicate.call_args.kwargs["timeout"] == A.TIMEOUT_S
-    assert events == ["clone read", "killed True", "reaped", "probe", "clone read"]
+    assert events == ["clone read", "timed out", "group killed", "reaped", "probe", "clone read"]
+
+
+def test_an_admitting_checker_group_is_killed_before_the_clone_is_checked(
+    tmp_path, monkeypatch, spawns
+):
+    """A checker that answers and exits can leave a process behind that writes into the
+    clone after it was checked, into the keep's ``git add -A``."""
+    driver, winner = _driver(tmp_path, monkeypatch, "admitted")
+    events: list[str] = []
+    _fake_checker(monkeypatch, events, exits=True, on_exit=_admit)
+    _record_order(monkeypatch, driver, events)
+    assert A.admit_candidate(driver, winner) is True
+    assert events == ["clone read", "exited", "group killed", "reaped", "probe", "clone read"]
+
+
+@pytest.mark.skipif(os.name != "posix", reason="POSIX process groups")
+def test_a_group_left_after_the_checker_was_reaped_is_killed(monkeypatch):
+    proc = Mock(pid=4242)
+    killed: list[tuple[int, int]] = []
+    monkeypatch.setattr(A, "kill_popen_tree", Mock())
+    monkeypatch.setattr(A, "pgroup_exists", lambda pgid: pgid == 4242)
+    monkeypatch.setattr(A, "kill_process_group", lambda pgid, sig: killed.append((pgid, sig)))
+    A._stop_group(proc)
+    proc.wait.assert_called_once_with()
+    assert killed == [(4242, A.signal.SIGKILL)]
+
+
+@pytest.mark.skipif(not hasattr(os, "waitid"), reason="needs os.waitid")
+def test_the_exit_wait_leaves_the_checker_unreaped(monkeypatch):
+    """Unreaped, the checker's pid still names its group when that group is killed."""
+    answers = iter([None, SimpleNamespace(si_pid=4242)])
+    calls: list[tuple[int, int, int]] = []
+
+    def waitid(idtype, pid, options):
+        calls.append((idtype, pid, options))
+        return next(answers)
+
+    monkeypatch.setattr(A.os, "waitid", waitid)
+    proc = Mock(pid=4242)
+    assert A._exited_unreaped(proc, A.TIMEOUT_S) is True
+    assert len(calls) == 2
+    assert all(c[:2] == (os.P_PID, 4242) and c[2] & os.WNOWAIT for c in calls)
+    proc.wait.assert_not_called()
+
+
+def test_a_configured_checker_refuses_to_start_where_it_is_not_supported(monkeypatch):
+    monkeypatch.setattr(A, "SUPPORTED", False)
+    assert A.parse_command(None) is None
+    with pytest.raises(ValueError, match="not supported on Windows"):
+        A.parse_command([str(Path(sys.executable).resolve())])
 
 
 @pytest.mark.parametrize("value", ["/bin/check", [], ["relative/check"], ["/bin/check", 1]])
-def test_a_malformed_command_refuses_to_start(value):
+def test_a_malformed_command_refuses_to_start(value, monkeypatch):
+    monkeypatch.setattr(A, "SUPPORTED", True)
     with pytest.raises(ValueError, match="candidateAdmissionCommand"):
         A.parse_command(value)
