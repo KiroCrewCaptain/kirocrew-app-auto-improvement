@@ -30,6 +30,16 @@ wheel copy's other changes since then are test relocations into its own `tests/`
 comment rewording (#30076, #30043), which carry no behaviour. The test suite runs
 against Kiro Crew `main` `6d07df11cf` (`tests/requirements.txt`).
 
+The opt-in candidate admission check of kirodotdev/KiroCrew#32301 (#28012) is ported
+with its tests: `candidateAdmissionCommand` names a project evidence checker that both
+keep paths ask before the provisional commit, and only a fresh, matching `admitted`
+answer keeps the candidate (`spine/candidate_admission.py`, `spine/driver.py`,
+`backend/runner.py`, `docs/MANUAL.md` section 7, `tests/test_candidate_admission.py`).
+The checker runs in the tests' sandbox, so `write_protected_targets` moved from
+`profiles/github_repo/profile.py` to `spine/push_policy.py`, which both spawns share,
+and `run_limited` and `sandboxed_spawn_argv` resolve through `_host.need` as the other
+`kiro_crew.sandbox` names do.
+
 Paths with a line number below refer to the snapshot commit. A **gap** is something the
 built-in gets from Kiro Crew that an external app has no public way to get yet;
 closing one is a Kiro Crew change (a generic, app-agnostic App Kit seam), not a
