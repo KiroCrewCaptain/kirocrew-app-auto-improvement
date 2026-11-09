@@ -13,7 +13,6 @@ import contextlib
 import hashlib
 import json
 import os
-import signal
 import subprocess
 import tempfile
 import time
@@ -30,6 +29,7 @@ if TYPE_CHECKING:
     from .contracts import Proposal
     from .driver import Driver
 
+SIGKILL = _host.need("platform_compat", "SIGKILL")
 kill_popen_tree = _host.need("platform_compat", "kill_popen_tree")
 kill_process_group = _host.need("platform_compat", "kill_process_group")
 pgroup_exists = _host.need("platform_compat", "pgroup_exists")
@@ -99,7 +99,7 @@ def _stop_group(proc: subprocess.Popen[bytes]) -> None:
     proc.wait()
     if os.name == "posix" and pgroup_exists(proc.pid):
         with contextlib.suppress(OSError, ValueError):
-            kill_process_group(proc.pid, signal.SIGKILL)
+            kill_process_group(proc.pid, SIGKILL)
 
 
 def _ask(argv: tuple[str, ...], request: bytes) -> tuple[int, bytes]:
