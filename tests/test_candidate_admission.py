@@ -15,6 +15,8 @@ from unittest.mock import Mock
 
 import pytest
 
+from kiro_crew.testing.ids import UNALLOCATABLE_PID
+
 from auto_improvement.spine import candidate_admission as A
 from auto_improvement.spine import driver as D
 from auto_improvement.spine import ledger as L
@@ -72,7 +74,7 @@ def _fake_checker(monkeypatch, events: list[str], *, exits: bool, on_exit=None) 
     """Stand in for the checker process: record when it ends, is killed and is reaped."""
 
     class Proc:
-        pid = 4242
+        pid = UNALLOCATABLE_PID
         returncode = None
 
         def __init__(self, argv, *, stdout, **kwargs):
@@ -363,20 +365,20 @@ def test_an_admitting_checker_group_is_killed_before_the_clone_is_checked(
 
 @pytest.mark.skipif(os.name != "posix", reason="POSIX process groups")
 def test_a_group_left_after_the_checker_was_reaped_is_killed(monkeypatch):
-    proc = Mock(pid=4242)
+    proc = Mock(pid=UNALLOCATABLE_PID)
     killed: list[tuple[int, int]] = []
     monkeypatch.setattr(A, "kill_popen_tree", Mock())
-    monkeypatch.setattr(A, "pgroup_exists", lambda pgid: pgid == 4242)
+    monkeypatch.setattr(A, "pgroup_exists", lambda pgid: pgid == UNALLOCATABLE_PID)
     monkeypatch.setattr(A, "kill_process_group", lambda pgid, sig: killed.append((pgid, sig)))
     A._stop_group(proc)
     proc.wait.assert_called_once_with()
-    assert killed == [(4242, A.signal.SIGKILL)]
+    assert killed == [(UNALLOCATABLE_PID, A.SIGKILL)]
 
 
 @pytest.mark.skipif(not hasattr(os, "waitid"), reason="needs os.waitid")
 def test_the_exit_wait_leaves_the_checker_unreaped(monkeypatch):
     """Unreaped, the checker's pid still names its group when that group is killed."""
-    answers = iter([None, SimpleNamespace(si_pid=4242)])
+    answers = iter([None, SimpleNamespace(si_pid=UNALLOCATABLE_PID)])
     calls: list[tuple[int, int, int]] = []
 
     def waitid(idtype, pid, options):
@@ -384,10 +386,10 @@ def test_the_exit_wait_leaves_the_checker_unreaped(monkeypatch):
         return next(answers)
 
     monkeypatch.setattr(A.os, "waitid", waitid)
-    proc = Mock(pid=4242)
+    proc = Mock(pid=UNALLOCATABLE_PID)
     assert A._exited_unreaped(proc, A.TIMEOUT_S) is True
     assert len(calls) == 2
-    assert all(c[:2] == (os.P_PID, 4242) and c[2] & os.WNOWAIT for c in calls)
+    assert all(c[:2] == (os.P_PID, UNALLOCATABLE_PID) and c[2] & os.WNOWAIT for c in calls)
     proc.wait.assert_not_called()
 
 
