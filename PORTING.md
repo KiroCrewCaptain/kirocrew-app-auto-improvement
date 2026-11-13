@@ -77,6 +77,14 @@ global config, so a host `core.hooksPath` cannot refuse a fixture commit,
 helper from Kiro Crew's `test/` by path, and this repository keeps that helper beside
 its tests.
 
+kirodotdev/KiroCrew#30602 is ported with its tests: the runner's shell-command gate
+re-checks the script that `eval`, `script -c` and `watch` run, and finds the commands of
+a text with a quote-aware split as well as the quote-blind one, so a quoted separator
+stays data while every command the quote-blind split finds stays refused
+(`spine/agent_runner_gate.py`). Its `shell_command_refusal` cases moved out of
+`tests/test_ai_agent_runner_coverage.py` into `tests/test_ai_agent_runner_shell_gate.py`,
+as they did in the wheel copy.
+
 The setup panel takes two later wheel-copy fixes. kirodotdev/KiroCrew#33128: the Clone
 button stays in the tab order while a clone runs (`aria-disabled`, not `disabled`), a
 second press in the same tick starts no second clone, and a request that fails outright
@@ -362,6 +370,7 @@ the hook manager, the members, the redactor and the file helpers are the real on
 | `test/test_pr_recipe.py` scanner cases | `tests/` | The "no security module" double is the gateway lacking `kiro_crew.security`, as the shim resolves it. |
 | Every other `test/test_ai_*`, `test_auto_improvement_*`, `test_bug_*`, `test_spine_json_extraction.py` | `tests/` | Import paths; `from conftest import ...` helpers come from `tests/symlink_capability.py`; Kiro Crew test helpers they import (`facade_mirror_scan.py`, `git_maintenance_helpers.py`, `stray_line_helpers.py`, `windows_sim.py`) are copied beside them. |
 | The auto-improvement cases of `test/test_owner_gate_round10_misc.py`, `test_git_tree_removal_windows.py`, `test_git_config_hooks.py`, `test_windows_replace_retry_sweep.py`, `test_owner_only_files.py`, `test_sandbox_launcher_refusal.py`, `test_sandbox_launcher_import_hoist.py`, `test_git_tmp_packs.py`, `test_env_allowlist_consolidation.py`, `test_handlers_auto_improvement_deny_notice.py` | `tests/test_deps_install_owner_gate.py`, `test_git_tree_removal_windows.py`, `test_git_safety_config_hooks.py`, `test_store_replace_retry.py`, `test_run_archive_owner_only.py`, `test_launcher_parity.py` (both launcher suites, with `sandbox_launcher_helpers.py`), `test_fetch_timeout_reaps_tmp_packs.py`, `test_measure_env_allowlist.py`, `test_agent_runner_deny_notice.py` | The app's cases only; the core halves stay in Kiro Crew. |
+| `src/kiro_crew/apps/builtins/auto_improvement/tests/test_ai_agent_runner_shell_gate.py` (kirodotdev/KiroCrew#30602) | `tests/`, same name | The runner gate's refused and allowed shapes, split out of `test_ai_agent_runner_coverage.py` as in the wheel copy; import path only. |
 | (none) | `tests/test_host_seams.py`, `tests/test_no_host_imports.py`, `tests/test_manifest_contract.py` | Every fail-closed path of the shim, the capability report, the owner gate, the data root, the hooks, the MCP launcher; only the shim reaches `kiro_crew`; manifest parity, the bundle's imports, the hooks loading through the gateway's own module loader and serving a request through its `RouteRegistry`, no hardcoded model id, an adoptable tree, the MCP server accepted by Kiro Crew's own adoption check. |
 | (none) | `tests/test_run_start_admission.py` | Run start through `ctx.lifecycle.admit` (admitted, disabled, timed out, the host's real `AppLifecycleSDK`), never the private names on a level-2 gateway; the refusal and the capability report on a gateway with neither. |
 | `website/src/apps/auto-improvement/*.test.tsx`, `website/src/test/autoImprovement*.test.ts(x)` | `ui/tests/` | No Redux store or router; requests go through the stub host client (`ui/tests/stubs/`). |
