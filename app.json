@@ -2,7 +2,7 @@
   "name": "auto-improvement",
   "version": "1.0.0",
   "displayName": "Auto-Improvement",
-  "description": "Measures a GitHub repository before it changes it. Designs a calibrated performance metric (the ruler), proves the metric is trustworthy against a known win, then runs keep-or-revert improvement cycles: every candidate fix is written in an isolated worktree, gated against an edit allowlist and the repo's own tests, and kept only when the measured win clears the noise band. By default, survivors are drafted as GitHub pull requests you review and publish yourself.",
+  "description": "Measures a GitHub or GitLab repository before it changes it. Designs a calibrated performance metric (the ruler), proves the metric is trustworthy against a known win, then runs keep-or-revert improvement cycles: every candidate fix is written in an isolated worktree, gated against an edit allowlist and the repo's own tests, and kept only when the measured win clears the noise band. By default, survivors are drafted as GitHub pull requests or GitLab merge requests you review and publish yourself.",
   "author": "zedmor",
   "license": "Apache-2.0",
   "minKiroCrewVersion": "0.13.0",
@@ -11,15 +11,16 @@
     "code-quality",
     "automation",
     "agents",
-    "github"
+    "github",
+    "gitlab"
   ],
   "highlights": [
     "Proves its own metric first — a run refuses to start on an untrustworthy ruler",
     "Every candidate is measured A/B, or RED/GREEN for bug fixes, never just 'looks right'",
     "Keeps a change only when the win clears the measured noise band",
-    "Drafts GitHub pull requests — draft-only, never published or merged for you",
+    "Drafts GitHub pull requests or GitLab merge requests — draft-only, never published or merged for you",
     "Works on a push-disabled clone, so nothing escapes the sandbox unreviewed",
-    "One resumable chat session per pull request, finding, and run"
+    "One resumable chat session per pull or merge request, finding, and run"
   ],
   "defaultEnabled": false,
   "platform": {
@@ -84,8 +85,11 @@
   },
   "dependencies": {
     "commands": [
-      "git",
-      "gh"
+      "git"
+    ],
+    "optionalCommands": [
+      "gh",
+      "glab"
     ]
   },
   "ui": {
@@ -98,10 +102,10 @@
     ]
   },
   "useCases": [
-    "Prove measurable performance gains or reproducible bug fixes before turning survivors into reviewable GitHub changes."
+    "Prove measurable performance gains or reproducible bug fixes before turning survivors into reviewable GitHub or GitLab changes."
   ],
   "configuration": [
-    "The gateway host needs git and an authenticated gh CLI; connect a GitHub repository, choose its base branch, and calibrate a ruler before performance runs."
+    "The gateway host needs git and an authenticated GitHub CLI (gh) or GitLab CLI (glab); connect a repository, choose its base branch, and calibrate a ruler before performance runs."
   ],
   "screenshots": [
     "assets/screenshot-main.png"
@@ -109,145 +113,145 @@
   "l10n": {
     "bn": {
       "displayName": "Auto-Improvement",
-      "description": "কোনো GitHub রিপোজিটরি বদলানোর আগে তা মেপে নেয়। একটি ক্যালিব্রেট করা পারফরম্যান্স মেট্রিক (মাপকাঠি) তৈরি করে, জানা একটি উন্নতির বিপরীতে প্রমাণ করে যে মেট্রিকটি নির্ভরযোগ্য, তারপর রাখা-বা-ফিরিয়ে-নেওয়ার উন্নতিচক্র চালায়: প্রতিটি সম্ভাব্য সংশোধন আলাদা worktree-তে লেখা হয়, সম্পাদনের অনুমোদিত তালিকা ও রিপোজিটরির নিজস্ব পরীক্ষার মধ্য দিয়ে যায়, এবং কেবল তখনই রাখা হয় যখন মাপা লাভ নয়েজ-ব্যান্ড ছাড়িয়ে যায়। ডিফল্টভাবে, টিকে যাওয়া সংশোধনগুলো GitHub পুল রিকোয়েস্টের খসড়া হিসেবে তৈরি হয়, যা তুমি নিজে দেখে প্রকাশ করো।",
+      "description": "কোনো GitHub বা GitLab রিপোজিটরি বদলানোর আগে তা মেপে নেয়। একটি ক্যালিব্রেট করা পারফরম্যান্স মেট্রিক (মাপকাঠি) তৈরি করে, জানা একটি উন্নতির বিপরীতে প্রমাণ করে যে মেট্রিকটি নির্ভরযোগ্য, তারপর রাখা-বা-ফিরিয়ে-নেওয়ার উন্নতিচক্র চালায়: প্রতিটি সম্ভাব্য সংশোধন আলাদা worktree-তে লেখা হয়, সম্পাদনের অনুমোদিত তালিকা ও রিপোজিটরির নিজস্ব পরীক্ষার মধ্য দিয়ে যায়, এবং কেবল তখনই রাখা হয় যখন মাপা লাভ নয়েজ-ব্যান্ড ছাড়িয়ে যায়। ডিফল্টভাবে, টিকে যাওয়া সংশোধনগুলো GitHub পুল রিকোয়েস্ট বা GitLab মার্জ রিকোয়েস্টের খসড়া হিসেবে তৈরি হয়, যা তুমি নিজে দেখে প্রকাশ করো।",
       "pageLabel": "Auto-Improve",
       "highlights": [
         "আগে নিজের মাপকাঠিই প্রমাণ করে — অবিশ্বস্ত মাপকাঠিতে রান শুরুই হয় না",
         "প্রতিটি প্রার্থী A/B-তে মাপা হয়, বাগ সংশোধনে RED/GREEN — শুধু «দেখে ঠিক লাগছে» নয়",
         "লাভ মাপা নয়েজ-ব্যান্ড ছাড়ালেই কেবল পরিবর্তন রাখা হয়",
-        "GitHub পুল রিকোয়েস্ট তৈরি করে — কেবল খসড়া, আপনার হয়ে কখনও প্রকাশ বা মার্জ নয়",
+        "GitHub পুল রিকোয়েস্ট বা GitLab মার্জ রিকোয়েস্ট তৈরি করে — কেবল খসড়া, তোমার হয়ে কখনও প্রকাশ বা মার্জ নয়",
         "push-বিহীন ক্লোনে চলে, তাই পর্যালোচনা ছাড়া কিছুই স্যান্ডবক্স ছাড়ে না",
-        "প্রতিটি পুল রিকোয়েস্ট, ফলাফল ও রানের জন্য একটি পুনরারম্ভযোগ্য চ্যাট সেশন"
+        "প্রতিটি পুল বা মার্জ রিকোয়েস্ট, ফলাফল ও রানের জন্য একটি পুনরারম্ভযোগ্য চ্যাট সেশন"
       ]
     },
     "de": {
       "displayName": "Auto-Improvement",
-      "description": "Misst ein GitHub-Repository, bevor es daran etwas ändert. Entwirft eine kalibrierte Leistungsmetrik (das Maß), weist anhand eines bekannten Gewinns nach, dass die Metrik vertrauenswürdig ist, und führt dann Verbessern-oder-Verwerfen-Zyklen aus: Jede Kandidatenkorrektur entsteht in einem isolierten Worktree, wird gegen eine Bearbeitungs-Allowlist und die Tests des Repositorys geprüft und nur behalten, wenn der gemessene Gewinn das Rauschband übersteigt. Standardmäßig wird, was übrig bleibt, als GitHub-Pull-Request im Entwurfsstatus angelegt, den du selbst prüfst und veröffentlichst.",
+      "description": "Misst ein GitHub- oder GitLab-Repository, bevor es daran etwas ändert. Entwirft eine kalibrierte Leistungsmetrik (das Maß), weist anhand eines bekannten Gewinns nach, dass die Metrik vertrauenswürdig ist, und führt dann Verbessern-oder-Verwerfen-Zyklen aus: Jede Kandidatenkorrektur entsteht in einem isolierten Worktree, wird gegen eine Bearbeitungs-Allowlist und die Tests des Repositorys geprüft und nur behalten, wenn der gemessene Gewinn das Rauschband übersteigt. Standardmäßig wird, was übrig bleibt, als GitHub-Pull-Request oder GitLab-Merge-Request im Entwurfsstatus angelegt, den du selbst prüfst und veröffentlichst.",
       "pageLabel": "Auto-Improve",
       "highlights": [
         "Weist zuerst die eigene Metrik nach — ein Lauf startet nicht mit einem unzuverlässigen Maß",
         "Jeder Kandidat wird A/B gemessen, bei Fehlerkorrekturen RED/GREEN, niemals nur „sieht richtig aus“",
         "Behält eine Änderung nur, wenn der Gewinn das gemessene Rauschband übersteigt",
-        "Legt GitHub-Pull-Requests an — nur als Entwurf, niemals für dich veröffentlicht oder gemergt",
+        "Legt GitHub-Pull-Requests oder GitLab-Merge-Requests an — nur als Entwurf, niemals für dich veröffentlicht oder gemergt",
         "Arbeitet auf einem Klon ohne Push-Recht, damit nichts ungeprüft die Sandbox verlässt",
-        "Eine fortsetzbare Chat-Sitzung pro Pull Request, Befund und Lauf"
+        "Eine fortsetzbare Chat-Sitzung pro Pull- oder Merge-Request, Befund und Lauf"
       ]
     },
     "es": {
       "displayName": "Auto-Improvement",
-      "description": "Mide un repositorio de GitHub antes de cambiarlo. Diseña una métrica de rendimiento calibrada (la regla), demuestra que la métrica es fiable frente a una mejora conocida y luego ejecuta ciclos de conservar o revertir: cada corrección candidata se escribe en un worktree aislado, se filtra con una lista de permitidos de edición y las pruebas del propio repositorio, y solo se conserva cuando la mejora medida supera la banda de ruido. De forma predeterminada, las supervivientes se redactan como pull requests de GitHub en borrador que tú revisas y publicas.",
+      "description": "Mide un repositorio de GitHub o GitLab antes de cambiarlo. Diseña una métrica de rendimiento calibrada (la regla), demuestra que la métrica es fiable frente a una mejora conocida y luego ejecuta ciclos de conservar o revertir: cada corrección candidata se escribe en un worktree aislado, se filtra con una lista de permitidos de edición y las pruebas del propio repositorio, y solo se conserva cuando la mejora medida supera la banda de ruido. De forma predeterminada, las supervivientes se redactan como pull requests de GitHub o merge requests de GitLab en borrador que tú revisas y publicas.",
       "pageLabel": "Auto-Improve",
       "highlights": [
         "Primero demuestra su propia métrica: una ejecución se niega a empezar con una regla poco fiable",
         "Cada candidato se mide en A/B, o RED/GREEN para correcciones de errores, nunca solo “parece correcto”",
         "Conserva un cambio solo cuando la mejora supera la banda de ruido medida",
-        "Redacta pull requests de GitHub: solo borradores, nunca publicados ni fusionados por ti",
+        "Redacta pull requests de GitHub y merge requests de GitLab: solo borradores, nunca publicados ni fusionados por ti",
         "Funciona sobre un clon sin permiso de push, así nada sale del entorno aislado sin revisión",
-        "Una sesión de chat reanudable por cada pull request, hallazgo y ejecución"
+        "Una sesión de chat reanudable por cada pull request o merge request, hallazgo y ejecución"
       ]
     },
     "fr": {
       "displayName": "Auto-Improvement",
-      "description": "Mesure un dépôt GitHub avant de le modifier. Conçoit une métrique de performance calibrée (la règle), prouve que la métrique est fiable face à un gain connu, puis exécute des cycles conserver-ou-annuler : chaque correctif candidat est écrit dans un worktree isolé, filtré par une liste d’autorisation d’édition et les tests du dépôt, et conservé uniquement si le gain mesuré dépasse la bande de bruit. Par défaut, les survivants sont proposés en pull requests GitHub à l’état de brouillon, que tu relis et publies toi-même.",
+      "description": "Mesure un dépôt GitHub ou GitLab avant de le modifier. Conçoit une métrique de performance calibrée (la règle), prouve que la métrique est fiable face à un gain connu, puis exécute des cycles conserver-ou-annuler : chaque correctif candidat est écrit dans un worktree isolé, filtré par une liste d’autorisation d’édition et les tests du dépôt, et conservé uniquement si le gain mesuré dépasse la bande de bruit. Par défaut, les survivants sont proposés en pull requests GitHub ou en merge requests GitLab à l’état de brouillon, que tu relis et publies toi-même.",
       "pageLabel": "Auto-Improve",
       "highlights": [
         "Prouve d’abord sa propre métrique — une exécution refuse de démarrer sur une règle peu fiable",
         "Chaque candidat est mesuré en A/B, ou RED/GREEN pour les corrections de bugs, jamais un simple « ça a l’air bon »",
         "Ne conserve un changement que si le gain dépasse la bande de bruit mesurée",
-        "Rédige des pull requests GitHub — en brouillon uniquement, jamais publiées ni fusionnées pour vous",
+        "Rédige des pull requests GitHub et des merge requests GitLab — en brouillon uniquement, jamais publiées ni fusionnées pour toi",
         "Travaille sur un clone sans droit de push, afin que rien ne quitte le bac à sable sans relecture",
-        "Une session de discussion reprenable par pull request, par constat et par exécution"
+        "Une session de discussion reprenable par pull request ou merge request, par constat et par exécution"
       ]
     },
     "hi": {
       "displayName": "Auto-Improvement",
-      "description": "किसी GitHub रिपॉज़िटरी को बदलने से पहले उसे मापता है। एक कैलिब्रेटेड प्रदर्शन मीट्रिक (पैमाना) तैयार करता है, किसी ज्ञात सुधार के मुक़ाबले साबित करता है कि मीट्रिक भरोसेमंद है, और फिर रखो-या-पलटो सुधार चक्र चलाता है: हर संभावित सुधार एक अलग worktree में लिखा जाता है, संपादन-अनुमति सूची और रिपॉज़िटरी के अपने परीक्षणों से जाँचा जाता है, और तभी रखा जाता है जब मापा गया लाभ शोर-पट्टी से ऊपर हो। डिफ़ॉल्ट रूप से, बचे हुए सुधार GitHub पुल रिक्वेस्ट के ड्राफ़्ट के रूप में तैयार होते हैं, जिन्हें तुम स्वयं देखकर प्रकाशित करते हो।",
+      "description": "किसी GitHub या GitLab रिपॉज़िटरी को बदलने से पहले उसे मापता है। एक कैलिब्रेटेड प्रदर्शन मीट्रिक (पैमाना) तैयार करता है, किसी ज्ञात सुधार के मुक़ाबले साबित करता है कि मीट्रिक भरोसेमंद है, और फिर रखो-या-पलटो सुधार चक्र चलाता है: हर संभावित सुधार एक अलग worktree में लिखा जाता है, संपादन-अनुमति सूची और रिपॉज़िटरी के अपने परीक्षणों से जाँचा जाता है, और तभी रखा जाता है जब मापा गया लाभ शोर-पट्टी से ऊपर हो। डिफ़ॉल्ट रूप से, बचे हुए सुधार GitHub पुल रिक्वेस्ट या GitLab मर्ज रिक्वेस्ट के ड्राफ़्ट के रूप में तैयार होते हैं, जिन्हें तुम स्वयं देखकर प्रकाशित करते हो।",
       "pageLabel": "Auto-Improve",
       "highlights": [
         "पहले अपना ही पैमाना साबित करता है — भरोसेमंद न हो तो रन शुरू ही नहीं होता",
         "हर उम्मीदवार A/B में मापा जाता है, बग-फ़िक्स के लिए RED/GREEN — केवल «ठीक लगता है» पर नहीं",
         "बदलाव तभी रखता है जब लाभ मापी गई शोर-पट्टी से ऊपर हो",
-        "GitHub पुल रिक्वेस्ट तैयार करता है — केवल ड्राफ़्ट, तुम्हारे लिए कभी प्रकाशित या मर्ज नहीं",
+        "GitHub पुल रिक्वेस्ट या GitLab मर्ज रिक्वेस्ट तैयार करता है — केवल ड्राफ़्ट, तुम्हारे लिए कभी प्रकाशित या मर्ज नहीं",
         "push-रहित क्लोन पर चलता है, इसलिए कुछ भी बिना समीक्षा सैंडबॉक्स से बाहर नहीं जाता",
-        "हर पुल रिक्वेस्ट, हर निष्कर्ष और हर रन के लिए एक फिर-से-शुरू होने वाला चैट सत्र"
+        "हर पुल या मर्ज रिक्वेस्ट, हर निष्कर्ष और हर रन के लिए एक फिर-से-शुरू होने वाला चैट सत्र"
       ]
     },
     "it": {
       "displayName": "Auto-Improvement",
-      "description": "Misura un repository GitHub prima di modificarlo. Progetta una metrica di prestazione calibrata (il metro), dimostra che la metrica è affidabile rispetto a un miglioramento noto, poi esegue cicli mantieni-o-annulla: ogni correzione candidata viene scritta in un worktree isolato, filtrata da un elenco di file modificabili e dai test del repository, e mantenuta solo quando il guadagno misurato supera la banda di rumore. Per impostazione predefinita, i sopravvissuti vengono redatti come pull request GitHub in bozza, che sei tu a rivedere e pubblicare.",
+      "description": "Misura un repository GitHub o GitLab prima di modificarlo. Progetta una metrica di prestazione calibrata (il metro), dimostra che la metrica è affidabile rispetto a un miglioramento noto, poi esegue cicli mantieni-o-annulla: ogni correzione candidata viene scritta in un worktree isolato, filtrata da un elenco di file modificabili e dai test del repository, e mantenuta solo quando il guadagno misurato supera la banda di rumore. Per impostazione predefinita, i sopravvissuti vengono redatti come pull request GitHub o merge request GitLab in bozza, che sei tu a rivedere e pubblicare.",
       "pageLabel": "Auto-Improve",
       "highlights": [
         "Dimostra prima la propria metrica: un’esecuzione si rifiuta di partire con un metro inaffidabile",
         "Ogni candidato è misurato in A/B, o RED/GREEN per le correzioni di bug, mai solo “sembra giusto”",
         "Mantiene una modifica solo quando il guadagno supera la banda di rumore misurata",
-        "Redige pull request GitHub: solo bozze, mai pubblicate né unite per te",
+        "Redige pull request GitHub e merge request GitLab: solo bozze, mai pubblicate né unite per te",
         "Lavora su un clone senza push, così nulla esce dalla sandbox senza revisione",
-        "Una sessione di chat riprendibile per ogni pull request, risultato ed esecuzione"
+        "Una sessione di chat riprendibile per ogni pull request o merge request, risultato ed esecuzione"
       ]
     },
     "ja": {
       "displayName": "Auto-Improvement",
-      "description": "GitHub リポジトリを変更する前に測定します。校正済みの性能指標（ものさし）を設計し、既知の改善に対してその指標が信頼できることを証明したうえで、保持か巻き戻しの改善サイクルを実行します。候補となる修正はすべて隔離された worktree で書かれ、編集許可リストとリポジトリ自身のテストで検査され、測定した改善がノイズ帯を超えたときにだけ保持されます。既定では、残ったものは、あなたがレビューして自分で公開する GitHub のドラフトのプルリクエストになります。",
+      "description": "GitHub または GitLab のリポジトリを変更する前に測定します。校正済みの性能指標（ものさし）を設計し、既知の改善に対してその指標が信頼できることを証明したうえで、保持か巻き戻しの改善サイクルを実行します。候補となる修正はすべて隔離された worktree で書かれ、編集許可リストとリポジトリ自身のテストで検査され、測定した改善がノイズ帯を超えたときにだけ保持されます。既定では、残ったものは、あなたがレビューして自分で公開する GitHub のドラフトのプルリクエストや GitLab のドラフトのマージリクエストになります。",
       "pageLabel": "Auto-Improve",
       "highlights": [
         "まず自らの指標を証明します — 信頼できないものさしでは実行を開始しません",
         "候補はすべて A/B で測定し、バグ修正では RED/GREEN で確認します。「良さそう」では判断しません",
         "改善が測定したノイズ帯を超えたときにだけ変更を保持します",
-        "GitHub のプルリクエストを下書きします — 下書きのみで、代わりに公開やマージはしません",
+        "GitHub のプルリクエストや GitLab のマージリクエストを下書きします — 下書きのみで、代わりに公開やマージはしません",
         "プッシュを無効化したクローンで動くため、レビューを経ずにサンドボックスから出るものはありません",
-        "プルリクエスト、検出結果、実行ごとに再開できるチャットセッションが 1 つ"
+        "プルリクエストやマージリクエスト、検出結果、実行ごとに再開できるチャットセッションが 1 つ"
       ]
     },
     "ko": {
       "displayName": "Auto-Improvement",
-      "description": "GitHub 저장소를 변경하기 전에 먼저 측정합니다. 보정된 성능 지표(잣대)를 설계하고, 이미 알려진 개선으로 그 지표가 믿을 만한지 증명한 뒤, 유지 또는 되돌리기 개선 주기를 실행합니다. 모든 후보 수정은 격리된 worktree에서 작성되고, 편집 허용 목록과 저장소 자체 테스트로 검사되며, 측정된 개선이 잡음 구간을 넘어설 때만 유지됩니다. 기본적으로 살아남은 변경은 직접 리뷰하고 공개하는 GitHub 풀 리퀘스트 초안이 됩니다.",
+      "description": "GitHub 또는 GitLab 저장소를 변경하기 전에 먼저 측정합니다. 보정된 성능 지표(잣대)를 설계하고, 이미 알려진 개선으로 그 지표가 믿을 만한지 증명한 뒤, 유지 또는 되돌리기 개선 주기를 실행합니다. 모든 후보 수정은 격리된 worktree에서 작성되고, 편집 허용 목록과 저장소 자체 테스트로 검사되며, 측정된 개선이 잡음 구간을 넘어설 때만 유지됩니다. 기본적으로 살아남은 변경은 직접 리뷰하고 공개하는 GitHub 풀 리퀘스트 또는 GitLab 머지 리퀘스트 초안이 됩니다.",
       "pageLabel": "Auto-Improve",
       "highlights": [
         "지표부터 증명합니다 — 잣대를 믿을 수 없으면 실행을 시작하지 않습니다",
         "모든 후보를 A/B로, 버그 수정은 RED/GREEN으로 측정합니다. ‘괜찮아 보인다’로 판단하지 않습니다",
         "개선이 측정된 잡음 구간을 넘어설 때만 변경을 유지합니다",
-        "GitHub 풀 리퀘스트를 초안으로 작성합니다 — 초안만 만들며, 대신 공개하거나 병합하지 않습니다",
+        "GitHub 풀 리퀘스트나 GitLab 머지 리퀘스트를 초안으로 작성합니다 — 초안만 만들며, 대신 공개하거나 병합하지 않습니다",
         "푸시가 비활성화된 클론에서 동작하므로 리뷰 없이 샌드박스를 벗어나는 것은 없습니다",
-        "풀 리퀘스트·발견 항목·실행마다 이어서 쓸 수 있는 채팅 세션 하나"
+        "풀 리퀘스트나 머지 리퀘스트·발견 항목·실행마다 이어서 쓸 수 있는 채팅 세션 하나"
       ]
     },
     "pt": {
       "displayName": "Auto-Improvement",
-      "description": "Mede um repositório do GitHub antes de alterá-lo. Projeta uma métrica de desempenho calibrada (a régua), prova que a métrica é confiável diante de um ganho conhecido e então executa ciclos de manter ou reverter: cada correção candidata é escrita em um worktree isolado, filtrada por uma lista de permissões de edição e pelos testes do próprio repositório, e mantida apenas quando o ganho medido supera a faixa de ruído. Por padrão, as sobreviventes são redigidas como pull requests do GitHub em rascunho, que você revisa e publica.",
+      "description": "Mede um repositório do GitHub ou do GitLab antes de alterá-lo. Projeta uma métrica de desempenho calibrada (a régua), prova que a métrica é confiável diante de um ganho conhecido e então executa ciclos de manter ou reverter: cada correção candidata é escrita em um worktree isolado, filtrada por uma lista de permissões de edição e pelos testes do próprio repositório, e mantida apenas quando o ganho medido supera a faixa de ruído. Por padrão, as sobreviventes são redigidas como pull requests do GitHub ou merge requests do GitLab em rascunho, que você revisa e publica.",
       "pageLabel": "Auto-Improve",
       "highlights": [
         "Prova primeiro a própria métrica — uma execução se recusa a começar com uma régua não confiável",
         "Cada candidato é medido em A/B, ou RED/GREEN para correções de bugs, nunca apenas “parece certo”",
         "Mantém uma mudança só quando o ganho supera a faixa de ruído medida",
-        "Redige pull requests do GitHub — apenas rascunhos, nunca publicados nem mesclados por você",
+        "Redige pull requests do GitHub e merge requests do GitLab — apenas rascunhos, nunca publicados nem mesclados por você",
         "Funciona em um clone sem push, então nada escapa da sandbox sem revisão",
-        "Uma sessão de conversa retomável por pull request, achado e execução"
+        "Uma sessão de conversa retomável por pull request ou merge request, achado e execução"
       ]
     },
     "ru": {
       "displayName": "Auto-Improvement",
-      "description": "Измеряет репозиторий GitHub, прежде чем его менять. Строит калиброванную метрику производительности (линейку), доказывает её надёжность на заведомом улучшении, а затем выполняет циклы «оставить или откатить»: каждое предлагаемое исправление создаётся в изолированном worktree, проверяется по списку разрешённых к правке файлов и тестами самого репозитория и сохраняется только тогда, когда измеренный выигрыш превышает полосу шума. По умолчанию уцелевшие оформляются как черновые pull request’ы GitHub, которые ты просматриваешь и публикуешь сам.",
+      "description": "Измеряет репозиторий GitHub или GitLab, прежде чем его менять. Строит калиброванную метрику производительности (линейку), доказывает её надёжность на заведомом улучшении, а затем выполняет циклы «оставить или откатить»: каждое предлагаемое исправление создаётся в изолированном worktree, проверяется по списку разрешённых к правке файлов и тестами самого репозитория и сохраняется только тогда, когда измеренный выигрыш превышает полосу шума. По умолчанию уцелевшие оформляются как черновые pull request’ы GitHub или merge request’ы GitLab, которые ты просматриваешь и публикуешь сам.",
       "pageLabel": "Auto-Improve",
       "highlights": [
         "Сначала доказывает собственную метрику — запуск не начнётся с ненадёжной линейкой",
         "Каждый вариант измеряется A/B, а исправления ошибок — RED/GREEN, а не «на вид правильно»",
         "Сохраняет изменение только если выигрыш превышает измеренную полосу шума",
-        "Готовит pull request’ы GitHub — только черновики, ничего не публикуется и не сливается за вас",
+        "Готовит pull request’ы GitHub и merge request’ы GitLab — только черновики, ничего не публикуется и не сливается за тебя",
         "Работает на клоне без права push, поэтому ничто не покидает песочницу без проверки",
-        "Одна возобновляемая сессия чата на каждый pull request, находку и запуск"
+        "Одна возобновляемая сессия чата на каждый pull request или merge request, находку и запуск"
       ]
     },
     "zh-CN": {
       "displayName": "Auto-Improvement",
-      "description": "先度量 GitHub 仓库，再改动它。先设计一个经过校准的性能指标，也就是标尺；再用一个已知改进来证明该指标可信。随后运行“保留或回滚”改进循环：每个候选修复都写在独立 worktree 中，要通过可编辑文件白名单以及仓库自身测试，只有当实测收益超过噪声带时才会保留。默认情况下，留下来的结果会拟为 GitHub 草稿拉取请求，由你自己审阅并发布。",
+      "description": "先度量 GitHub 或 GitLab 仓库，再改动它。先设计一个经过校准的性能指标，也就是标尺；再用一个已知改进来证明该指标可信。随后运行“保留或回滚”改进循环：每个候选修复都写在独立 worktree 中，要通过可编辑文件白名单以及仓库自身测试，只有当实测收益超过噪声带时才会保留。默认情况下，留下来的结果会拟为 GitHub 草稿拉取请求或 GitLab 草稿合并请求，由你自己审阅并发布。",
       "pageLabel": "Auto-Improve",
       "highlights": [
         "先证明自己的指标——标尺不可信时，运行会拒绝开始",
         "每个候选都做 A/B 度量，缺陷修复则用 RED/GREEN，而不是只凭“看起来对”",
         "只有当收益超过实测噪声带时才保留改动",
-        "拟写 GitHub 拉取请求——仅为草稿，绝不代你发布或合并",
+        "拟写 GitHub 拉取请求或 GitLab 合并请求——仅为草稿，绝不代你发布或合并",
         "在禁止 push 的克隆上运行，任何东西都不会未经审阅离开沙箱",
-        "每个拉取请求、每项发现、每次运行各有一个可续接的聊天会话"
+        "每个拉取请求或合并请求、每项发现、每次运行各有一个可续接的聊天会话"
       ]
     }
   }

@@ -5,7 +5,7 @@
   <img src="docs/media/hero-light.png" alt="The Auto-Improvement page working on octocat/Hello-World with push disabled: the Repository card with the base branch picker, the Commit directly to the branch option and Start run, then the Ruler, Findings, Kept and Pull requests counters and the ruler card saying it is not calibrated yet">
 </picture>
 
-**Fixes bugs in a GitHub repository, and keeps only the fixes its tests prove.**
+**Fixes bugs in a GitHub or GitLab repository, and keeps only the fixes its tests prove.**
 
 Auto-Improvement is an app for [Kiro Crew](https://github.com/kirodotdev/KiroCrew),
 the open-source personal AI agent.
@@ -14,11 +14,11 @@ the open-source personal AI agent.
 
 Auto-Improvement adds an **Auto-Improve** page to Kiro Crew's sidebar and two
 helpers to your crew, a Scout and an Engineer. You point the page at one of your
-GitHub repositories. Its helpers look for bugs and try small fixes one at a
-time, and plain tests decide what is kept: a fix survives only when a test that
-fails without it passes with it and the rest of the repository's tests still
-pass. What survives becomes a **draft** pull request on GitHub that you review
-and publish yourself. The page also has **The ruler**, the measurement the app
+GitHub or GitLab repositories. Its helpers look for bugs and try small fixes one
+at a time, and plain tests decide what is kept: a fix survives only when a test
+that fails without it passes with it and the rest of the repository's tests still
+pass. What survives becomes a **draft** pull request on GitHub, or a draft merge
+request on GitLab, that you review and publish yourself. The page also has **The ruler**, the measurement the app
 would use to judge a speed-up, which you can talk over with an agent.
 
 **Get started:** open **Apps → Discover**, find **Auto-Improvement**, choose
@@ -36,9 +36,9 @@ It never publishes or merges anything for you; it only drafts.
 
 ### 1. Connect a repository without letting anything escape
 
-You want the app to work on one of your GitHub repositories, but you do not want
-an AI pushing to it. You paste the repository's address into **GitHub repository
-to improve** and choose **Connect**. The app makes its own copy with pushing
+You want the app to work on one of your GitHub or GitLab repositories, but you do
+not want an AI pushing to it. You paste the repository's address into **GitHub or
+GitLab repository to improve** and choose **Connect**. The app makes its own copy with pushing
 switched off, shows **push disabled** next to the repository's name, and lets you
 choose the **Base branch** it should work from.
 
@@ -94,17 +94,21 @@ empty.</sub>
    as **Auto-Improve** under **Apps** in the sidebar and in **Apps → Library**.
 
 What it needs: a Mac, Linux or Windows computer running Kiro Crew 0.13.0 or
-later, where ordinary chats already work; `git` and the GitHub command-line tool
-(`gh`), signed in to your GitHub account, on the same computer; and a GitHub
-repository you can open pull requests against.
+later, where ordinary chats already work; `git` on the same computer, with the
+GitHub command-line tool (`gh`) signed in for a GitHub repository, or the GitLab
+one (`glab`) signed in for a GitLab repository; and a repository you can open pull
+or merge requests against. A gitlab.com repository works as is. A self-managed
+GitLab works once its host is listed in `dashboard.gitlab_hosts` in Kiro Crew's
+`config.json` and resolves to a public address.
 
 ## First run
 
 The page opens with an empty **Repository** card: nothing is connected, there is
 no ruler, and the **Findings ledger** and **Draft pull requests** lists are empty.
-Paste the address of a GitHub repository (for example
-`https://github.com/your-name/your-project`) into **GitHub repository to improve**
-and choose **Connect**. When the copy is ready the card says **Working on
+Paste the address of a GitHub or GitLab repository (for example
+`https://github.com/your-name/your-project` or
+`https://gitlab.com/your-group/your-project`) into **GitHub or GitLab repository
+to improve** and choose **Connect**. When the copy is ready the card says **Working on
 &lt;your-name/your-project&gt;** with a **push disabled** badge. The first time the
 app is turned on it also adds its two helpers to your crew, **auto-improvement-scout**
 and **auto-improvement-engineer**; you can see them under **Bots**.
@@ -142,9 +146,9 @@ when Kiro Crew cannot start the app's sandbox.
   findings, the queued changes and the links to your chats, one set per repository
   and branch. The copies of your repository and the trial changes live in
   `~/.autoimprove-scratch/` (or the folder `AUTO_IMPROVEMENT_SCRATCH` names).
-- **What leaves your computer:** the repository is copied from GitHub, and the
-  draft pull requests, their status and their checks go to and from GitHub through
-  your signed-in `gh`. The helpers' and chats' messages go to the AI model Kiro
+- **What leaves your computer:** the repository is copied from GitHub or GitLab,
+  and the draft pull or merge requests, their status and their checks go to and
+  from it through your signed-in `gh` or `glab`. The helpers' and chats' messages go to the AI model Kiro
   Crew uses, like any other chat. Nothing is pushed or published without a draft
   pull request you review, or your confirmation for **Commit to the branch**.
 - **Turn it off:** **Apps → Library**, open the **⋯** menu on Auto-Improvement,
@@ -156,9 +160,11 @@ when Kiro Crew cannot start the app's sandbox.
 ## Troubleshooting / FAQ
 
 **Connect shows a message instead of "Working on".**
-The address must be an `https://github.com/<owner>/<repository>` address, and the
-computer must be able to download it. The message under the box says what went
-wrong, for example that only github.com addresses are supported.
+The address must be an `https://github.com/<owner>/<repository>` address, an
+`https://gitlab.com/<group>/<project>` address, or the address of a self-managed
+GitLab whose host is listed in `dashboard.gitlab_hosts`, and the computer must be
+able to download it. The message under the box says what went wrong, for example
+that the host is not supported.
 
 **Start run does nothing.**
 The button was refused, and the page does not show why. The usual reasons are
@@ -180,8 +186,8 @@ That is Kiro Crew's normal approval step. Choose **Allow once** only if you are
 happy for that command to run on your computer, or **Reject** to say no.
 
 **A pull request shows "Unavailable".**
-Kiro Crew could not read that pull request from GitHub just then. Check that `gh`
-is signed in, then use the refresh button on its row.
+Kiro Crew could not read that pull or merge request just then. Check that `gh`
+(GitHub) or `glab` (GitLab) is signed in, then use the refresh button on its row.
 
 ## Development
 
@@ -191,8 +197,8 @@ internals it still needs; [docs/MANUAL.md](docs/MANUAL.md) is the operator's
 manual and [docs/BUILTIN_README.md](docs/BUILTIN_README.md) the engineering
 overview it shipped with. `backend/` is the in-gateway part (routes, the run
 supervisor, the PR watchers, the stdio MCP server started by
-`backend/mcp_launch.py`), `spine/` the improvement loop, `profiles/` the GitHub
-repository profile, and `ui/` the page, built into the committed `ui/dist/index.mjs`.
+`backend/mcp_launch.py`), `spine/` the improvement loop, `profiles/` the GitHub and
+GitLab repository profile with their pull and merge request recipes, and `ui/` the page, built into the committed `ui/dist/index.mjs`.
 
 ### Install from a clone
 

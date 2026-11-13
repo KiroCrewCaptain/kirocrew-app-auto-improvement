@@ -136,19 +136,19 @@ var CATALOGS = {
 				"staygreen": "STAYGREEN"
 			},
 			"manifest": {
-				"description": "কোনো GitHub রিপোজিটরি বদলানোর আগে তা মেপে নেয়। একটি ক্যালিব্রেট করা পারফরম্যান্স মেট্রিক (মাপকাঠি) তৈরি করে, জানা একটি উন্নতির বিপরীতে প্রমাণ করে যে মেট্রিকটি নির্ভরযোগ্য, তারপর রাখা-বা-ফিরিয়ে-নেওয়ার উন্নতিচক্র চালায়: প্রতিটি সম্ভাব্য সংশোধন আলাদা worktree-তে লেখা হয়, সম্পাদনের অনুমোদিত তালিকা ও রিপোজিটরির নিজস্ব পরীক্ষার মধ্য দিয়ে যায়, এবং কেবল তখনই রাখা হয় যখন মাপা লাভ নয়েজ-ব্যান্ড ছাড়িয়ে যায়। ডিফল্টভাবে, টিকে যাওয়া সংশোধনগুলো GitHub পুল রিকোয়েস্টের খসড়া হিসেবে তৈরি হয়, যা তুমি নিজে দেখে প্রকাশ করো।",
+				"description": "কোনো GitHub বা GitLab রিপোজিটরি বদলানোর আগে তা মেপে নেয়। একটি ক্যালিব্রেট করা পারফরম্যান্স মেট্রিক (মাপকাঠি) তৈরি করে, জানা একটি উন্নতির বিপরীতে প্রমাণ করে যে মেট্রিকটি নির্ভরযোগ্য, তারপর রাখা-বা-ফিরিয়ে-নেওয়ার উন্নতিচক্র চালায়: প্রতিটি সম্ভাব্য সংশোধন আলাদা worktree-তে লেখা হয়, সম্পাদনের অনুমোদিত তালিকা ও রিপোজিটরির নিজস্ব পরীক্ষার মধ্য দিয়ে যায়, এবং কেবল তখনই রাখা হয় যখন মাপা লাভ নয়েজ-ব্যান্ড ছাড়িয়ে যায়। ডিফল্টভাবে, টিকে যাওয়া সংশোধনগুলো GitHub পুল রিকোয়েস্ট বা GitLab মার্জ রিকোয়েস্টের খসড়া হিসেবে তৈরি হয়, যা তুমি নিজে দেখে প্রকাশ করো।",
 				"display_name": "Auto-Improvement",
-				"use_case_1": "সফল বিকল্পগুলোকে পর্যালোচনাযোগ্য GitHub পরিবর্তনে রূপ দেওয়ার আগে পরিমাপযোগ্য কর্মদক্ষতার উন্নতি বা পুনরুৎপাদনযোগ্য bug fix প্রমাণ করুন।",
-				"configuration_1": "গেটওয়ে হোস্টে git ও প্রমাণীকৃত gh CLI থাকতে হবে; একটি GitHub রিপোজিটরি সংযুক্ত করুন, তার base branch বেছে নিন এবং performance run-এর আগে ruler calibrate করুন।",
+				"use_case_1": "সফল বিকল্পগুলোকে পর্যালোচনাযোগ্য GitHub বা GitLab পরিবর্তনে রূপ দেওয়ার আগে পরিমাপযোগ্য কর্মদক্ষতার উন্নতি বা পুনরুৎপাদনযোগ্য bug fix প্রমাণ করো।",
+				"configuration_1": "গেটওয়ে হোস্টে git এবং প্রমাণীকৃত GitHub CLI (gh) বা GitLab CLI (glab) থাকতে হবে; একটি রিপোজিটরি সংযুক্ত করো, তার base branch বেছে নাও এবং performance run-এর আগে ruler calibrate করো।",
 				"highlight_1": "আগে নিজের মাপকাঠিই প্রমাণ করে — অবিশ্বস্ত মাপকাঠিতে রান শুরুই হয় না",
 				"highlight_2": "প্রতিটি প্রার্থী A/B-তে মাপা হয়, বাগ সংশোধনে RED/GREEN — শুধু «দেখে ঠিক লাগছে» নয়",
 				"highlight_3": "লাভ মাপা নয়েজ-ব্যান্ড ছাড়ালেই কেবল পরিবর্তন রাখা হয়",
-				"highlight_4": "GitHub পুল রিকোয়েস্ট তৈরি করে — কেবল খসড়া, আপনার হয়ে কখনও প্রকাশ বা মার্জ নয়",
+				"highlight_4": "GitHub পুল রিকোয়েস্ট বা GitLab মার্জ রিকোয়েস্ট তৈরি করে — কেবল খসড়া, তোমার হয়ে কখনও প্রকাশ বা মার্জ নয়",
 				"highlight_5": "push-বিহীন ক্লোনে চলে, তাই পর্যালোচনা ছাড়া কিছুই স্যান্ডবক্স ছাড়ে না",
-				"highlight_6": "প্রতিটি পুল রিকোয়েস্ট, ফলাফল ও রানের জন্য একটি পুনরারম্ভযোগ্য চ্যাট সেশন",
+				"highlight_6": "প্রতিটি পুল বা মার্জ রিকোয়েস্ট, ফলাফল ও রানের জন্য একটি পুনরারম্ভযোগ্য চ্যাট সেশন",
 				"page_label": "Auto-Improve"
 			},
-			"setupPanel": { "https_github_com_owner_repo": "https://github.com/owner/repo" }
+			"setupPanel": { "repo_url_placeholder": "https://github.com/owner/repo বা https://gitlab.com/group/project" }
 		} },
 		autoImprovement: {
 			"activityDiscovered": "(আবিষ্কৃত {{discovered}}, নতুন {{fresh}})",
@@ -199,7 +199,7 @@ var CATALOGS = {
 			"queuedOnly": "স্থানীয়ভাবে সারিবদ্ধ, খোলা হয়নি",
 			"refreshPr": "পুল রিকোয়েস্টের অবস্থা রিফ্রেশ করুন",
 			"regressed": "ক্ষতিগ্রস্ত পরীক্ষা: {{tests}}",
-			"repoLabel": "উন্নত করার জন্য GitHub রিপোজিটরি",
+			"repoLabel": "উন্নত করার জন্য GitHub বা GitLab রিপোজিটরি",
 			"reproTest": "পুনরুৎপাদন পরীক্ষা",
 			"rulerHeading": "মাপনী",
 			"rulerNotReady": "মাপনী এখনও ক্যালিব্রেট করা হয়নি। এটি শুধু গতি বৃদ্ধি যাচাই করতে ব্যবহৃত হয়; এই পৃষ্ঠা থেকে শুরু করা রানগুলো বাগ ঠিক করে, আর প্রতিটি সমাধান যাচাই করে রিপোজিটরির নিজস্ব টেস্ট।",
@@ -244,19 +244,19 @@ var CATALOGS = {
 				"staygreen": "STAYGREEN"
 			},
 			"manifest": {
-				"description": "Misst ein GitHub-Repository, bevor es daran etwas ändert. Entwirft eine kalibrierte Leistungsmetrik (das Maß), weist anhand eines bekannten Gewinns nach, dass die Metrik vertrauenswürdig ist, und führt dann Verbessern-oder-Verwerfen-Zyklen aus: Jede Kandidatenkorrektur entsteht in einem isolierten Worktree, wird gegen eine Bearbeitungs-Allowlist und die Tests des Repositorys geprüft und nur behalten, wenn der gemessene Gewinn das Rauschband übersteigt. Standardmäßig wird, was übrig bleibt, als GitHub-Pull-Request im Entwurfsstatus angelegt, den du selbst prüfst und veröffentlichst.",
+				"description": "Misst ein GitHub- oder GitLab-Repository, bevor es daran etwas ändert. Entwirft eine kalibrierte Leistungsmetrik (das Maß), weist anhand eines bekannten Gewinns nach, dass die Metrik vertrauenswürdig ist, und führt dann Verbessern-oder-Verwerfen-Zyklen aus: Jede Kandidatenkorrektur entsteht in einem isolierten Worktree, wird gegen eine Bearbeitungs-Allowlist und die Tests des Repositorys geprüft und nur behalten, wenn der gemessene Gewinn das Rauschband übersteigt. Standardmäßig wird, was übrig bleibt, als GitHub-Pull-Request oder GitLab-Merge-Request im Entwurfsstatus angelegt, den du selbst prüfst und veröffentlichst.",
 				"display_name": "Auto-Improvement",
 				"highlight_1": "Weist zuerst die eigene Metrik nach — ein Lauf startet nicht mit einem unzuverlässigen Maß",
 				"highlight_2": "Jeder Kandidat wird A/B gemessen, bei Fehlerkorrekturen RED/GREEN, niemals nur „sieht richtig aus“",
 				"highlight_3": "Behält eine Änderung nur, wenn der Gewinn das gemessene Rauschband übersteigt",
-				"highlight_4": "Legt GitHub-Pull-Requests an — nur als Entwurf, niemals für dich veröffentlicht oder gemergt",
+				"highlight_4": "Legt GitHub-Pull-Requests oder GitLab-Merge-Requests an — nur als Entwurf, niemals für dich veröffentlicht oder gemergt",
 				"highlight_5": "Arbeitet auf einem Klon ohne Push-Recht, damit nichts ungeprüft die Sandbox verlässt",
-				"highlight_6": "Eine fortsetzbare Chat-Sitzung pro Pull Request, Befund und Lauf",
+				"highlight_6": "Eine fortsetzbare Chat-Sitzung pro Pull- oder Merge-Request, Befund und Lauf",
 				"page_label": "Auto-Improve",
-				"use_case_1": "Belege messbare Leistungssteigerungen oder reproduzierbare Fehlerkorrekturen, bevor erfolgreiche Kandidaten zu überprüfbaren GitHub-Änderungen werden.",
-				"configuration_1": "Auf dem Gateway-Host werden Git und eine authentifizierte gh-CLI benötigt; verbinde ein GitHub-Repository, wähle den Basis-Branch und kalibriere vor Leistungsläufen eine Messgröße."
+				"use_case_1": "Belege messbare Leistungssteigerungen oder reproduzierbare Fehlerkorrekturen, bevor erfolgreiche Kandidaten zu überprüfbaren GitHub- oder GitLab-Änderungen werden.",
+				"configuration_1": "Auf dem Gateway-Host werden Git und eine authentifizierte GitHub-CLI (gh) oder GitLab-CLI (glab) benötigt; verbinde ein Repository, wähle den Basis-Branch und kalibriere vor Leistungsläufen eine Messgröße."
 			},
-			"setupPanel": { "https_github_com_owner_repo": "https://github.com/owner/repo" }
+			"setupPanel": { "repo_url_placeholder": "https://github.com/owner/repo oder https://gitlab.com/group/project" }
 		} },
 		autoImprovement: {
 			"activityDiscovered": "(gefunden {{discovered}}, neu {{fresh}})",
@@ -307,7 +307,7 @@ var CATALOGS = {
 			"queuedOnly": "lokal eingereiht, nicht eröffnet",
 			"refreshPr": "Pull-Request-Status aktualisieren",
 			"regressed": "Regressierte Tests: {{tests}}",
-			"repoLabel": "Zu verbesserndes GitHub-Repository",
+			"repoLabel": "Zu verbesserndes GitHub- oder GitLab-Repository",
 			"reproTest": "Reproduktionstest",
 			"rulerHeading": "Der Maßstab",
 			"rulerNotReady": "Der Maßstab ist noch nicht kalibriert. Er bewertet nur Beschleunigungen; die Läufe, die auf dieser Seite gestartet werden, beheben Fehler, und jede Korrektur wird stattdessen von den Tests des Repositorys bewertet.",
@@ -352,19 +352,19 @@ var CATALOGS = {
 				"staygreen": "STAYGREEN"
 			},
 			"manifest": {
-				"description": "Measures a GitHub repository before it changes it. Designs a calibrated performance metric (the ruler), proves the metric is trustworthy against a known win, then runs keep-or-revert improvement cycles: every candidate fix is written in an isolated worktree, gated against an edit allowlist and the repo's own tests, and kept only when the measured win clears the noise band. By default, survivors are drafted as GitHub pull requests you review and publish yourself.",
+				"description": "Measures a GitHub or GitLab repository before it changes it. Designs a calibrated performance metric (the ruler), proves the metric is trustworthy against a known win, then runs keep-or-revert improvement cycles: every candidate fix is written in an isolated worktree, gated against an edit allowlist and the repo's own tests, and kept only when the measured win clears the noise band. By default, survivors are drafted as GitHub pull requests or GitLab merge requests you review and publish yourself.",
 				"display_name": "Auto-Improvement",
 				"highlight_1": "Proves its own metric first — a run refuses to start on an untrustworthy ruler",
 				"highlight_2": "Every candidate is measured A/B, or RED/GREEN for bug fixes, never just 'looks right'",
 				"highlight_3": "Keeps a change only when the win clears the measured noise band",
-				"highlight_4": "Drafts GitHub pull requests — draft-only, never published or merged for you",
+				"highlight_4": "Drafts GitHub pull requests or GitLab merge requests — draft-only, never published or merged for you",
 				"highlight_5": "Works on a push-disabled clone, so nothing escapes the sandbox unreviewed",
-				"highlight_6": "One resumable chat session per pull request, finding, and run",
+				"highlight_6": "One resumable chat session per pull or merge request, finding, and run",
 				"page_label": "Auto-Improve",
-				"use_case_1": "Prove measurable performance gains or reproducible bug fixes before turning survivors into reviewable GitHub changes.",
-				"configuration_1": "The gateway host needs git and an authenticated gh CLI; connect a GitHub repository, choose its base branch, and calibrate a ruler before performance runs."
+				"use_case_1": "Prove measurable performance gains or reproducible bug fixes before turning survivors into reviewable GitHub or GitLab changes.",
+				"configuration_1": "The gateway host needs git and an authenticated GitHub CLI (gh) or GitLab CLI (glab); connect a repository, choose its base branch, and calibrate a ruler before performance runs."
 			},
-			"setupPanel": { "https_github_com_owner_repo": "https://github.com/owner/repo" }
+			"setupPanel": { "repo_url_placeholder": "https://github.com/owner/repo or https://gitlab.com/group/project" }
 		} },
 		autoImprovement: {
 			"activityDiscovered": "(discovered {{discovered}}, fresh {{fresh}})",
@@ -415,7 +415,7 @@ var CATALOGS = {
 			"queuedOnly": "queued locally, not opened",
 			"refreshPr": "Refresh pull request status",
 			"regressed": "Regressed tests: {{tests}}",
-			"repoLabel": "GitHub repository to improve",
+			"repoLabel": "GitHub or GitLab repository to improve",
 			"reproTest": "Repro test",
 			"rulerHeading": "The ruler",
 			"rulerNotReady": "The ruler is not calibrated yet. It is only used to judge speed-ups; the runs started from this page fix bugs, and the repository's tests judge each fix instead.",
@@ -460,19 +460,19 @@ var CATALOGS = {
 				"staygreen": "STAYGREEN"
 			},
 			"manifest": {
-				"description": "Mide un repositorio de GitHub antes de cambiarlo. Diseña una métrica de rendimiento calibrada (la regla), demuestra que la métrica es fiable frente a una mejora conocida y luego ejecuta ciclos de conservar o revertir: cada corrección candidata se escribe en un worktree aislado, se filtra con una lista de permitidos de edición y las pruebas del propio repositorio, y solo se conserva cuando la mejora medida supera la banda de ruido. De forma predeterminada, las supervivientes se redactan como pull requests de GitHub en borrador que tú revisas y publicas.",
+				"description": "Mide un repositorio de GitHub o GitLab antes de cambiarlo. Diseña una métrica de rendimiento calibrada (la regla), demuestra que la métrica es fiable frente a una mejora conocida y luego ejecuta ciclos de conservar o revertir: cada corrección candidata se escribe en un worktree aislado, se filtra con una lista de permitidos de edición y las pruebas del propio repositorio, y solo se conserva cuando la mejora medida supera la banda de ruido. De forma predeterminada, las supervivientes se redactan como pull requests de GitHub o merge requests de GitLab en borrador que tú revisas y publicas.",
 				"display_name": "Auto-Improvement",
 				"highlight_1": "Primero demuestra su propia métrica: una ejecución se niega a empezar con una regla poco fiable",
 				"highlight_2": "Cada candidato se mide en A/B, o RED/GREEN para correcciones de errores, nunca solo “parece correcto”",
 				"highlight_3": "Conserva un cambio solo cuando la mejora supera la banda de ruido medida",
-				"highlight_4": "Redacta pull requests de GitHub: solo borradores, nunca publicados ni fusionados por ti",
+				"highlight_4": "Redacta pull requests de GitHub y merge requests de GitLab: solo borradores, nunca publicados ni fusionados por ti",
 				"highlight_5": "Funciona sobre un clon sin permiso de push, así nada sale del entorno aislado sin revisión",
-				"highlight_6": "Una sesión de chat reanudable por cada pull request, hallazgo y ejecución",
+				"highlight_6": "Una sesión de chat reanudable por cada pull request o merge request, hallazgo y ejecución",
 				"page_label": "Auto-Improve",
-				"use_case_1": "Demuestra mejoras de rendimiento medibles o correcciones de errores reproducibles antes de convertir los candidatos válidos en cambios de GitHub listos para revisar.",
-				"configuration_1": "El host del gateway necesita Git y la CLI gh autenticada; conecta un repositorio de GitHub, elige su rama base y calibra una medida antes de las pruebas de rendimiento."
+				"use_case_1": "Demuestra mejoras de rendimiento medibles o correcciones de errores reproducibles antes de convertir los candidatos válidos en cambios de GitHub o GitLab listos para revisar.",
+				"configuration_1": "El host del gateway necesita Git y la CLI de GitHub (gh) o la CLI de GitLab (glab) autenticada; conecta un repositorio, elige su rama base y calibra una medida antes de las pruebas de rendimiento."
 			},
-			"setupPanel": { "https_github_com_owner_repo": "https://github.com/owner/repo" }
+			"setupPanel": { "repo_url_placeholder": "https://github.com/owner/repo o https://gitlab.com/group/project" }
 		} },
 		autoImprovement: {
 			"activityDiscovered": "(descubiertos {{discovered}}, nuevos {{fresh}})",
@@ -523,7 +523,7 @@ var CATALOGS = {
 			"queuedOnly": "en cola localmente, sin abrir",
 			"refreshPr": "Actualizar el estado de la solicitud",
 			"regressed": "Pruebas afectadas: {{tests}}",
-			"repoLabel": "Repositorio de GitHub a mejorar",
+			"repoLabel": "Repositorio de GitHub o GitLab a mejorar",
 			"reproTest": "Prueba de reproducción",
 			"rulerHeading": "La regla",
 			"rulerNotReady": "La regla aún no está calibrada. Solo se usa para valorar mejoras de velocidad; las ejecuciones que se inician desde esta página corrigen errores, y cada corrección la valoran las pruebas del repositorio.",
@@ -568,19 +568,19 @@ var CATALOGS = {
 				"staygreen": "STAYGREEN"
 			},
 			"manifest": {
-				"description": "Mesure un dépôt GitHub avant de le modifier. Conçoit une métrique de performance calibrée (la règle), prouve que la métrique est fiable face à un gain connu, puis exécute des cycles conserver-ou-annuler : chaque correctif candidat est écrit dans un worktree isolé, filtré par une liste d’autorisation d’édition et les tests du dépôt, et conservé uniquement si le gain mesuré dépasse la bande de bruit. Par défaut, les survivants sont proposés en pull requests GitHub à l’état de brouillon, que tu relis et publies toi-même.",
+				"description": "Mesure un dépôt GitHub ou GitLab avant de le modifier. Conçoit une métrique de performance calibrée (la règle), prouve que la métrique est fiable face à un gain connu, puis exécute des cycles conserver-ou-annuler : chaque correctif candidat est écrit dans un worktree isolé, filtré par une liste d’autorisation d’édition et les tests du dépôt, et conservé uniquement si le gain mesuré dépasse la bande de bruit. Par défaut, les survivants sont proposés en pull requests GitHub ou en merge requests GitLab à l’état de brouillon, que tu relis et publies toi-même.",
 				"display_name": "Auto-Improvement",
 				"highlight_1": "Prouve d’abord sa propre métrique — une exécution refuse de démarrer sur une règle peu fiable",
 				"highlight_2": "Chaque candidat est mesuré en A/B, ou RED/GREEN pour les corrections de bugs, jamais un simple « ça a l’air bon »",
 				"highlight_3": "Ne conserve un changement que si le gain dépasse la bande de bruit mesurée",
-				"highlight_4": "Rédige des pull requests GitHub — en brouillon uniquement, jamais publiées ni fusionnées pour vous",
+				"highlight_4": "Rédige des pull requests GitHub et des merge requests GitLab — en brouillon uniquement, jamais publiées ni fusionnées pour toi",
 				"highlight_5": "Travaille sur un clone sans droit de push, afin que rien ne quitte le bac à sable sans relecture",
-				"highlight_6": "Une session de discussion reprenable par pull request, par constat et par exécution",
+				"highlight_6": "Une session de discussion reprenable par pull request ou merge request, par constat et par exécution",
 				"page_label": "Auto-Improve",
-				"use_case_1": "Démontre des gains de performances mesurables ou des corrections de bugs reproductibles avant de transformer les candidats retenus en modifications GitHub à relire.",
-				"configuration_1": "L'hôte de la passerelle doit disposer de Git et d'une CLI gh authentifiée ; connecte un dépôt GitHub, choisis sa branche de base et étalonne une mesure avant les tests de performances."
+				"use_case_1": "Démontre des gains de performances mesurables ou des corrections de bugs reproductibles avant de transformer les candidats retenus en modifications GitHub ou GitLab à relire.",
+				"configuration_1": "L'hôte de la passerelle doit disposer de Git et d'une CLI GitHub (gh) ou GitLab (glab) authentifiée ; connecte un dépôt, choisis sa branche de base et étalonne une mesure avant les tests de performances."
 			},
-			"setupPanel": { "https_github_com_owner_repo": "https://github.com/owner/repo" }
+			"setupPanel": { "repo_url_placeholder": "https://github.com/owner/repo ou https://gitlab.com/group/project" }
 		} },
 		autoImprovement: {
 			"activityDiscovered": "(découverts {{discovered}}, nouveaux {{fresh}})",
@@ -631,7 +631,7 @@ var CATALOGS = {
 			"queuedOnly": "en file locale, non ouverte",
 			"refreshPr": "Actualiser l'état de la pull request",
 			"regressed": "Tests en régression : {{tests}}",
-			"repoLabel": "Dépôt GitHub à améliorer",
+			"repoLabel": "Dépôt GitHub ou GitLab à améliorer",
 			"reproTest": "Test de reproduction",
 			"rulerHeading": "La règle",
 			"rulerNotReady": "La règle n'est pas encore calibrée. Elle ne sert qu'à juger les gains de vitesse ; les exécutions lancées depuis cette page corrigent des bogues, et ce sont les tests du dépôt qui jugent chaque correction.",
@@ -676,19 +676,19 @@ var CATALOGS = {
 				"staygreen": "STAYGREEN"
 			},
 			"manifest": {
-				"description": "किसी GitHub रिपॉज़िटरी को बदलने से पहले उसे मापता है। एक कैलिब्रेटेड प्रदर्शन मीट्रिक (पैमाना) तैयार करता है, किसी ज्ञात सुधार के मुक़ाबले साबित करता है कि मीट्रिक भरोसेमंद है, और फिर रखो-या-पलटो सुधार चक्र चलाता है: हर संभावित सुधार एक अलग worktree में लिखा जाता है, संपादन-अनुमति सूची और रिपॉज़िटरी के अपने परीक्षणों से जाँचा जाता है, और तभी रखा जाता है जब मापा गया लाभ शोर-पट्टी से ऊपर हो। डिफ़ॉल्ट रूप से, बचे हुए सुधार GitHub पुल रिक्वेस्ट के ड्राफ़्ट के रूप में तैयार होते हैं, जिन्हें तुम स्वयं देखकर प्रकाशित करते हो।",
+				"description": "किसी GitHub या GitLab रिपॉज़िटरी को बदलने से पहले उसे मापता है। एक कैलिब्रेटेड प्रदर्शन मीट्रिक (पैमाना) तैयार करता है, किसी ज्ञात सुधार के मुक़ाबले साबित करता है कि मीट्रिक भरोसेमंद है, और फिर रखो-या-पलटो सुधार चक्र चलाता है: हर संभावित सुधार एक अलग worktree में लिखा जाता है, संपादन-अनुमति सूची और रिपॉज़िटरी के अपने परीक्षणों से जाँचा जाता है, और तभी रखा जाता है जब मापा गया लाभ शोर-पट्टी से ऊपर हो। डिफ़ॉल्ट रूप से, बचे हुए सुधार GitHub पुल रिक्वेस्ट या GitLab मर्ज रिक्वेस्ट के ड्राफ़्ट के रूप में तैयार होते हैं, जिन्हें तुम स्वयं देखकर प्रकाशित करते हो।",
 				"display_name": "Auto-Improvement",
-				"use_case_1": "सफल विकल्पों को समीक्षा योग्य GitHub बदलावों में बदलने से पहले मापने योग्य प्रदर्शन लाभ या दोहराए जा सकने वाले bug fix साबित करें।",
-				"configuration_1": "गेटवे होस्ट पर git और प्रमाणित gh CLI चाहिए; GitHub रिपॉज़िटरी कनेक्ट करें, उसकी आधार ब्रांच चुनें और प्रदर्शन रन से पहले ruler को कैलिब्रेट करें।",
+				"use_case_1": "सफल विकल्पों को समीक्षा योग्य GitHub या GitLab बदलावों में बदलने से पहले मापने योग्य प्रदर्शन लाभ या दोहराए जा सकने वाले bug fix साबित करो।",
+				"configuration_1": "गेटवे होस्ट पर git और प्रमाणित GitHub CLI (gh) या GitLab CLI (glab) चाहिए; रिपॉज़िटरी कनेक्ट करो, उसकी आधार ब्रांच चुनो और प्रदर्शन रन से पहले ruler को कैलिब्रेट करो।",
 				"highlight_1": "पहले अपना ही पैमाना साबित करता है — भरोसेमंद न हो तो रन शुरू ही नहीं होता",
 				"highlight_2": "हर उम्मीदवार A/B में मापा जाता है, बग-फ़िक्स के लिए RED/GREEN — केवल «ठीक लगता है» पर नहीं",
 				"highlight_3": "बदलाव तभी रखता है जब लाभ मापी गई शोर-पट्टी से ऊपर हो",
-				"highlight_4": "GitHub पुल रिक्वेस्ट तैयार करता है — केवल ड्राफ़्ट, तुम्हारे लिए कभी प्रकाशित या मर्ज नहीं",
+				"highlight_4": "GitHub पुल रिक्वेस्ट या GitLab मर्ज रिक्वेस्ट तैयार करता है — केवल ड्राफ़्ट, तुम्हारे लिए कभी प्रकाशित या मर्ज नहीं",
 				"highlight_5": "push-रहित क्लोन पर चलता है, इसलिए कुछ भी बिना समीक्षा सैंडबॉक्स से बाहर नहीं जाता",
-				"highlight_6": "हर पुल रिक्वेस्ट, हर निष्कर्ष और हर रन के लिए एक फिर-से-शुरू होने वाला चैट सत्र",
+				"highlight_6": "हर पुल या मर्ज रिक्वेस्ट, हर निष्कर्ष और हर रन के लिए एक फिर-से-शुरू होने वाला चैट सत्र",
 				"page_label": "Auto-Improve"
 			},
-			"setupPanel": { "https_github_com_owner_repo": "https://github.com/owner/repo" }
+			"setupPanel": { "repo_url_placeholder": "https://github.com/owner/repo या https://gitlab.com/group/project" }
 		} },
 		autoImprovement: {
 			"activityDiscovered": "(खोजे गए {{discovered}}, नए {{fresh}})",
@@ -739,7 +739,7 @@ var CATALOGS = {
 			"queuedOnly": "स्थानीय रूप से कतारबद्ध, खोला नहीं गया",
 			"refreshPr": "पुल रिक्वेस्ट स्थिति ताज़ा करें",
 			"regressed": "प्रभावित परीक्षण: {{tests}}",
-			"repoLabel": "सुधारने के लिए GitHub रिपॉज़िटरी",
+			"repoLabel": "सुधारने के लिए GitHub या GitLab रिपॉज़िटरी",
 			"reproTest": "पुनरुत्पादन परीक्षण",
 			"rulerHeading": "मापक",
 			"rulerNotReady": "मापक अभी कैलिब्रेट नहीं है। इसका उपयोग केवल गति-सुधार परखने के लिए होता है; इस पेज से शुरू किए गए रन बग ठीक करते हैं, और हर सुधार को रिपॉज़िटरी के अपने टेस्ट परखते हैं।",
@@ -784,19 +784,19 @@ var CATALOGS = {
 				"staygreen": "STAYGREEN"
 			},
 			"manifest": {
-				"description": "Misura un repository GitHub prima di modificarlo. Progetta una metrica di prestazione calibrata (il metro), dimostra che la metrica è affidabile rispetto a un miglioramento noto, poi esegue cicli mantieni-o-annulla: ogni correzione candidata viene scritta in un worktree isolato, filtrata da un elenco di file modificabili e dai test del repository, e mantenuta solo quando il guadagno misurato supera la banda di rumore. Per impostazione predefinita, i sopravvissuti vengono redatti come pull request GitHub in bozza, che sei tu a rivedere e pubblicare.",
+				"description": "Misura un repository GitHub o GitLab prima di modificarlo. Progetta una metrica di prestazione calibrata (il metro), dimostra che la metrica è affidabile rispetto a un miglioramento noto, poi esegue cicli mantieni-o-annulla: ogni correzione candidata viene scritta in un worktree isolato, filtrata da un elenco di file modificabili e dai test del repository, e mantenuta solo quando il guadagno misurato supera la banda di rumore. Per impostazione predefinita, i sopravvissuti vengono redatti come pull request GitHub o merge request GitLab in bozza, che sei tu a rivedere e pubblicare.",
 				"display_name": "Auto-Improvement",
 				"highlight_1": "Dimostra prima la propria metrica: un’esecuzione si rifiuta di partire con un metro inaffidabile",
 				"highlight_2": "Ogni candidato è misurato in A/B, o RED/GREEN per le correzioni di bug, mai solo “sembra giusto”",
 				"highlight_3": "Mantiene una modifica solo quando il guadagno supera la banda di rumore misurata",
-				"highlight_4": "Redige pull request GitHub: solo bozze, mai pubblicate né unite per te",
+				"highlight_4": "Redige pull request GitHub e merge request GitLab: solo bozze, mai pubblicate né unite per te",
 				"highlight_5": "Lavora su un clone senza push, così nulla esce dalla sandbox senza revisione",
-				"highlight_6": "Una sessione di chat riprendibile per ogni pull request, risultato ed esecuzione",
+				"highlight_6": "Una sessione di chat riprendibile per ogni pull request o merge request, risultato ed esecuzione",
 				"page_label": "Auto-Improve",
-				"use_case_1": "Dimostra miglioramenti misurabili delle prestazioni o correzioni di bug riproducibili prima di trasformare i candidati riusciti in modifiche GitHub da revisionare.",
-				"configuration_1": "L'host del gateway deve avere Git e la CLI gh autenticata; collega un repository GitHub, scegli il branch di base e calibra una misura prima dei test delle prestazioni."
+				"use_case_1": "Dimostra miglioramenti misurabili delle prestazioni o correzioni di bug riproducibili prima di trasformare i candidati riusciti in modifiche GitHub o GitLab da revisionare.",
+				"configuration_1": "L'host del gateway deve avere Git e la CLI di GitHub (gh) o di GitLab (glab) autenticata; collega un repository, scegli il branch di base e calibra una misura prima dei test delle prestazioni."
 			},
-			"setupPanel": { "https_github_com_owner_repo": "https://github.com/owner/repo" }
+			"setupPanel": { "repo_url_placeholder": "https://github.com/owner/repo o https://gitlab.com/group/project" }
 		} },
 		autoImprovement: {
 			"activityDiscovered": "(rilevati {{discovered}}, nuovi {{fresh}})",
@@ -847,7 +847,7 @@ var CATALOGS = {
 			"queuedOnly": "in coda locale, non aperta",
 			"refreshPr": "Aggiorna lo stato della pull request",
 			"regressed": "Test in regressione: {{tests}}",
-			"repoLabel": "Repository GitHub da migliorare",
+			"repoLabel": "Repository GitHub o GitLab da migliorare",
 			"reproTest": "Test di riproduzione",
 			"rulerHeading": "Il righello",
 			"rulerNotReady": "Il righello non è ancora calibrato. Serve solo a valutare i miglioramenti di velocità; le esecuzioni avviate da questa pagina correggono bug, e ogni correzione viene valutata dai test del repository.",
@@ -892,19 +892,19 @@ var CATALOGS = {
 				"staygreen": "STAYGREEN"
 			},
 			"manifest": {
-				"use_case_1": "測定可能な性能向上または再現可能な不具合修正を証明してから、採用された結果をレビュー可能な GitHub の変更にします。",
-				"configuration_1": "ゲートウェイホストには git と認証済みの gh CLI が必要です。GitHub リポジトリを接続し、ベースブランチを選び、性能改善を実行する前にルーラーを校正します。",
-				"description": "GitHub リポジトリを変更する前に測定します。校正済みの性能指標（ものさし）を設計し、既知の改善に対してその指標が信頼できることを証明したうえで、保持か巻き戻しの改善サイクルを実行します。候補となる修正はすべて隔離された worktree で書かれ、編集許可リストとリポジトリ自身のテストで検査され、測定した改善がノイズ帯を超えたときにだけ保持されます。既定では、残ったものは、あなたがレビューして自分で公開する GitHub のドラフトのプルリクエストになります。",
+				"use_case_1": "測定可能な性能向上または再現可能な不具合修正を証明してから、採用された結果をレビュー可能な GitHub または GitLab の変更にします。",
+				"configuration_1": "ゲートウェイホストには git と、認証済みの GitHub CLI (gh) または GitLab CLI (glab) が必要です。リポジトリを接続し、ベースブランチを選び、性能改善を実行する前にルーラーを校正します。",
+				"description": "GitHub または GitLab のリポジトリを変更する前に測定します。校正済みの性能指標（ものさし）を設計し、既知の改善に対してその指標が信頼できることを証明したうえで、保持か巻き戻しの改善サイクルを実行します。候補となる修正はすべて隔離された worktree で書かれ、編集許可リストとリポジトリ自身のテストで検査され、測定した改善がノイズ帯を超えたときにだけ保持されます。既定では、残ったものは、あなたがレビューして自分で公開する GitHub のドラフトのプルリクエストや GitLab のドラフトのマージリクエストになります。",
 				"display_name": "Auto-Improvement",
 				"highlight_1": "まず自らの指標を証明します — 信頼できないものさしでは実行を開始しません",
 				"highlight_2": "候補はすべて A/B で測定し、バグ修正では RED/GREEN で確認します。「良さそう」では判断しません",
 				"highlight_3": "改善が測定したノイズ帯を超えたときにだけ変更を保持します",
-				"highlight_4": "GitHub のプルリクエストを下書きします — 下書きのみで、代わりに公開やマージはしません",
+				"highlight_4": "GitHub のプルリクエストや GitLab のマージリクエストを下書きします — 下書きのみで、代わりに公開やマージはしません",
 				"highlight_5": "プッシュを無効化したクローンで動くため、レビューを経ずにサンドボックスから出るものはありません",
-				"highlight_6": "プルリクエスト、検出結果、実行ごとに再開できるチャットセッションが 1 つ",
+				"highlight_6": "プルリクエストやマージリクエスト、検出結果、実行ごとに再開できるチャットセッションが 1 つ",
 				"page_label": "Auto-Improve"
 			},
-			"setupPanel": { "https_github_com_owner_repo": "https://github.com/owner/repo" }
+			"setupPanel": { "repo_url_placeholder": "https://github.com/owner/repo または https://gitlab.com/group/project" }
 		} },
 		autoImprovement: {
 			"activityDiscovered": "（検出 {{discovered}}、新規 {{fresh}}）",
@@ -955,7 +955,7 @@ var CATALOGS = {
 			"queuedOnly": "ローカルに保留中、未作成",
 			"refreshPr": "プルリクエストの状態を更新",
 			"regressed": "退行したテスト: {{tests}}",
-			"repoLabel": "改善対象の GitHub リポジトリ",
+			"repoLabel": "改善対象の GitHub または GitLab リポジトリ",
 			"reproTest": "再現テスト",
 			"rulerHeading": "ものさし",
 			"rulerNotReady": "ものさしはまだ校正されていません。ものさしは高速化の判定にだけ使われます。このページから開始する実行はバグを修正するもので、各修正はリポジトリのテストで判定されます。",
@@ -1000,19 +1000,19 @@ var CATALOGS = {
 				"staygreen": "STAYGREEN"
 			},
 			"manifest": {
-				"use_case_1": "측정 가능한 성능 향상 또는 재현 가능한 버그 수정을 입증한 뒤, 통과한 결과를 검토 가능한 GitHub 변경 사항으로 만듭니다.",
-				"configuration_1": "게이트웨이 호스트에는 git과 인증된 gh CLI가 필요합니다. GitHub 저장소를 연결하고 기준 브랜치를 선택한 다음, 성능 실행 전에 측정 기준을 보정하세요.",
-				"description": "GitHub 저장소를 변경하기 전에 먼저 측정합니다. 보정된 성능 지표(잣대)를 설계하고, 이미 알려진 개선으로 그 지표가 믿을 만한지 증명한 뒤, 유지 또는 되돌리기 개선 주기를 실행합니다. 모든 후보 수정은 격리된 worktree에서 작성되고, 편집 허용 목록과 저장소 자체 테스트로 검사되며, 측정된 개선이 잡음 구간을 넘어설 때만 유지됩니다. 기본적으로 살아남은 변경은 직접 리뷰하고 공개하는 GitHub 풀 리퀘스트 초안이 됩니다.",
+				"use_case_1": "측정 가능한 성능 향상 또는 재현 가능한 버그 수정을 입증한 뒤, 통과한 결과를 검토 가능한 GitHub 또는 GitLab 변경 사항으로 만듭니다.",
+				"configuration_1": "게이트웨이 호스트에는 git과 인증된 GitHub CLI(gh) 또는 GitLab CLI(glab)가 필요합니다. 저장소를 연결하고 기준 브랜치를 선택한 다음, 성능 실행 전에 측정 기준을 보정하세요.",
+				"description": "GitHub 또는 GitLab 저장소를 변경하기 전에 먼저 측정합니다. 보정된 성능 지표(잣대)를 설계하고, 이미 알려진 개선으로 그 지표가 믿을 만한지 증명한 뒤, 유지 또는 되돌리기 개선 주기를 실행합니다. 모든 후보 수정은 격리된 worktree에서 작성되고, 편집 허용 목록과 저장소 자체 테스트로 검사되며, 측정된 개선이 잡음 구간을 넘어설 때만 유지됩니다. 기본적으로 살아남은 변경은 직접 리뷰하고 공개하는 GitHub 풀 리퀘스트 또는 GitLab 머지 리퀘스트 초안이 됩니다.",
 				"display_name": "Auto-Improvement",
 				"highlight_1": "지표부터 증명합니다 — 잣대를 믿을 수 없으면 실행을 시작하지 않습니다",
 				"highlight_2": "모든 후보를 A/B로, 버그 수정은 RED/GREEN으로 측정합니다. ‘괜찮아 보인다’로 판단하지 않습니다",
 				"highlight_3": "개선이 측정된 잡음 구간을 넘어설 때만 변경을 유지합니다",
-				"highlight_4": "GitHub 풀 리퀘스트를 초안으로 작성합니다 — 초안만 만들며, 대신 공개하거나 병합하지 않습니다",
+				"highlight_4": "GitHub 풀 리퀘스트나 GitLab 머지 리퀘스트를 초안으로 작성합니다 — 초안만 만들며, 대신 공개하거나 병합하지 않습니다",
 				"highlight_5": "푸시가 비활성화된 클론에서 동작하므로 리뷰 없이 샌드박스를 벗어나는 것은 없습니다",
-				"highlight_6": "풀 리퀘스트·발견 항목·실행마다 이어서 쓸 수 있는 채팅 세션 하나",
+				"highlight_6": "풀 리퀘스트나 머지 리퀘스트·발견 항목·실행마다 이어서 쓸 수 있는 채팅 세션 하나",
 				"page_label": "Auto-Improve"
 			},
-			"setupPanel": { "https_github_com_owner_repo": "https://github.com/owner/repo" }
+			"setupPanel": { "repo_url_placeholder": "https://github.com/owner/repo 또는 https://gitlab.com/group/project" }
 		} },
 		autoImprovement: {
 			"activityDiscovered": "(발견 {{discovered}}, 신규 {{fresh}})",
@@ -1063,7 +1063,7 @@ var CATALOGS = {
 			"queuedOnly": "로컬에 대기 중, 생성되지 않음",
 			"refreshPr": "풀 리퀘스트 상태 새로 고침",
 			"regressed": "퇴행한 테스트: {{tests}}",
-			"repoLabel": "개선할 GitHub 저장소",
+			"repoLabel": "개선할 GitHub 또는 GitLab 저장소",
 			"reproTest": "재현 테스트",
 			"rulerHeading": "잣대",
 			"rulerNotReady": "잣대가 아직 보정되지 않았습니다. 잣대는 속도 개선을 판정할 때만 쓰입니다. 이 페이지에서 시작한 실행은 버그를 고치며, 각 수정은 저장소의 테스트가 판정합니다.",
@@ -1108,19 +1108,19 @@ var CATALOGS = {
 				"staygreen": "STAYGREEN"
 			},
 			"manifest": {
-				"description": "Mede um repositório do GitHub antes de alterá-lo. Projeta uma métrica de desempenho calibrada (a régua), prova que a métrica é confiável diante de um ganho conhecido e então executa ciclos de manter ou reverter: cada correção candidata é escrita em um worktree isolado, filtrada por uma lista de permissões de edição e pelos testes do próprio repositório, e mantida apenas quando o ganho medido supera a faixa de ruído. Por padrão, as sobreviventes são redigidas como pull requests do GitHub em rascunho, que você revisa e publica.",
+				"description": "Mede um repositório do GitHub ou do GitLab antes de alterá-lo. Projeta uma métrica de desempenho calibrada (a régua), prova que a métrica é confiável diante de um ganho conhecido e então executa ciclos de manter ou reverter: cada correção candidata é escrita em um worktree isolado, filtrada por uma lista de permissões de edição e pelos testes do próprio repositório, e mantida apenas quando o ganho medido supera a faixa de ruído. Por padrão, as sobreviventes são redigidas como pull requests do GitHub ou merge requests do GitLab em rascunho, que você revisa e publica.",
 				"display_name": "Auto-Improvement",
 				"highlight_1": "Prova primeiro a própria métrica — uma execução se recusa a começar com uma régua não confiável",
 				"highlight_2": "Cada candidato é medido em A/B, ou RED/GREEN para correções de bugs, nunca apenas “parece certo”",
 				"highlight_3": "Mantém uma mudança só quando o ganho supera a faixa de ruído medida",
-				"highlight_4": "Redige pull requests do GitHub — apenas rascunhos, nunca publicados nem mesclados por você",
+				"highlight_4": "Redige pull requests do GitHub e merge requests do GitLab — apenas rascunhos, nunca publicados nem mesclados por você",
 				"highlight_5": "Funciona em um clone sem push, então nada escapa da sandbox sem revisão",
-				"highlight_6": "Uma sessão de conversa retomável por pull request, achado e execução",
+				"highlight_6": "Uma sessão de conversa retomável por pull request ou merge request, achado e execução",
 				"page_label": "Auto-Improve",
-				"use_case_1": "Comprove ganhos mensuráveis de desempenho ou correções reproduzíveis de bugs antes de transformar os candidatos aprovados em alterações do GitHub prontas para revisão.",
-				"configuration_1": "O host do gateway precisa de Git e da CLI gh autenticada; conecte um repositório do GitHub, escolha a branch base e calibre uma medida antes dos testes de desempenho."
+				"use_case_1": "Comprove ganhos mensuráveis de desempenho ou correções reproduzíveis de bugs antes de transformar os candidatos aprovados em alterações do GitHub ou do GitLab prontas para revisão.",
+				"configuration_1": "O host do gateway precisa de Git e da CLI do GitHub (gh) ou da CLI do GitLab (glab) autenticada; conecte um repositório, escolha a branch base e calibre uma medida antes dos testes de desempenho."
 			},
-			"setupPanel": { "https_github_com_owner_repo": "https://github.com/owner/repo" }
+			"setupPanel": { "repo_url_placeholder": "https://github.com/owner/repo ou https://gitlab.com/group/project" }
 		} },
 		autoImprovement: {
 			"activityDiscovered": "(descobertos {{discovered}}, novos {{fresh}})",
@@ -1171,7 +1171,7 @@ var CATALOGS = {
 			"queuedOnly": "em fila local, não aberta",
 			"refreshPr": "Atualizar o estado da pull request",
 			"regressed": "Testes com regressão: {{tests}}",
-			"repoLabel": "Repositório do GitHub a melhorar",
+			"repoLabel": "Repositório do GitHub ou do GitLab a melhorar",
 			"reproTest": "Teste de reprodução",
 			"rulerHeading": "A régua",
 			"rulerNotReady": "A régua ainda não está calibrada. Ela só é usada para julgar ganhos de velocidade; as execuções iniciadas nesta página corrigem bugs, e cada correção é julgada pelos testes do repositório.",
@@ -1216,19 +1216,19 @@ var CATALOGS = {
 				"staygreen": "STAYGREEN"
 			},
 			"manifest": {
-				"description": "Измеряет репозиторий GitHub, прежде чем его менять. Строит калиброванную метрику производительности (линейку), доказывает её надёжность на заведомом улучшении, а затем выполняет циклы «оставить или откатить»: каждое предлагаемое исправление создаётся в изолированном worktree, проверяется по списку разрешённых к правке файлов и тестами самого репозитория и сохраняется только тогда, когда измеренный выигрыш превышает полосу шума. По умолчанию уцелевшие оформляются как черновые pull request’ы GitHub, которые ты просматриваешь и публикуешь сам.",
+				"description": "Измеряет репозиторий GitHub или GitLab, прежде чем его менять. Строит калиброванную метрику производительности (линейку), доказывает её надёжность на заведомом улучшении, а затем выполняет циклы «оставить или откатить»: каждое предлагаемое исправление создаётся в изолированном worktree, проверяется по списку разрешённых к правке файлов и тестами самого репозитория и сохраняется только тогда, когда измеренный выигрыш превышает полосу шума. По умолчанию уцелевшие оформляются как черновые pull request’ы GitHub или merge request’ы GitLab, которые ты просматриваешь и публикуешь сам.",
 				"display_name": "Auto-Improvement",
-				"use_case_1": "Подтверждайте измеримый прирост производительности или воспроизводимые исправления ошибок, прежде чем превращать прошедшие отбор варианты в проверяемые изменения на GitHub.",
-				"configuration_1": "На хосте шлюза нужны git и авторизованный gh CLI; подключите репозиторий GitHub, выберите базовую ветку и откалибруйте линейку перед замерами производительности.",
+				"use_case_1": "Подтверждай измеримый прирост производительности или воспроизводимые исправления ошибок, прежде чем превращать прошедшие отбор варианты в проверяемые изменения на GitHub или GitLab.",
+				"configuration_1": "На хосте шлюза нужны git и авторизованный GitHub CLI (gh) или GitLab CLI (glab); подключи репозиторий, выбери базовую ветку и откалибруй линейку перед замерами производительности.",
 				"highlight_1": "Сначала доказывает собственную метрику — запуск не начнётся с ненадёжной линейкой",
 				"highlight_2": "Каждый вариант измеряется A/B, а исправления ошибок — RED/GREEN, а не «на вид правильно»",
 				"highlight_3": "Сохраняет изменение только если выигрыш превышает измеренную полосу шума",
-				"highlight_4": "Готовит pull request’ы GitHub — только черновики, ничего не публикуется и не сливается за вас",
+				"highlight_4": "Готовит pull request’ы GitHub и merge request’ы GitLab — только черновики, ничего не публикуется и не сливается за тебя",
 				"highlight_5": "Работает на клоне без права push, поэтому ничто не покидает песочницу без проверки",
-				"highlight_6": "Одна возобновляемая сессия чата на каждый pull request, находку и запуск",
+				"highlight_6": "Одна возобновляемая сессия чата на каждый pull request или merge request, находку и запуск",
 				"page_label": "Auto-Improve"
 			},
-			"setupPanel": { "https_github_com_owner_repo": "https://github.com/owner/repo" }
+			"setupPanel": { "repo_url_placeholder": "https://github.com/owner/repo или https://gitlab.com/group/project" }
 		} },
 		autoImprovement: {
 			"activityDiscovered": "(найдено {{discovered}}, новых {{fresh}})",
@@ -1279,7 +1279,7 @@ var CATALOGS = {
 			"queuedOnly": "в локальной очереди, не открыт",
 			"refreshPr": "Обновить состояние пул-реквеста",
 			"regressed": "Регрессировавшие тесты: {{tests}}",
-			"repoLabel": "Репозиторий GitHub для улучшения",
+			"repoLabel": "Репозиторий GitHub или GitLab для улучшения",
 			"reproTest": "Тест воспроизведения",
 			"rulerHeading": "Линейка",
 			"rulerNotReady": "Линейка ещё не откалибрована. Она нужна только для оценки ускорений; запуски с этой страницы исправляют ошибки, и каждое исправление оценивают тесты самого репозитория.",
@@ -1324,19 +1324,19 @@ var CATALOGS = {
 				"staygreen": "STAYGREEN"
 			},
 			"manifest": {
-				"use_case_1": "先证明性能提升可度量或缺陷修复可复现，再将通过筛选的结果转为可审阅的 GitHub 改动。",
-				"configuration_1": "网关主机需要安装 git 和已认证的 gh CLI；连接 GitHub 仓库，选择基础分支，并在运行性能任务前校准标尺。",
-				"description": "先度量 GitHub 仓库，再改动它。先设计一个经过校准的性能指标，也就是标尺；再用一个已知改进来证明该指标可信。随后运行“保留或回滚”改进循环：每个候选修复都写在独立 worktree 中，要通过可编辑文件白名单以及仓库自身测试，只有当实测收益超过噪声带时才会保留。默认情况下，留下来的结果会拟为 GitHub 草稿拉取请求，由你自己审阅并发布。",
+				"use_case_1": "先证明性能提升可度量或缺陷修复可复现，再将通过筛选的结果转为可审阅的 GitHub 或 GitLab 改动。",
+				"configuration_1": "网关主机需要安装 git，以及已认证的 GitHub CLI（gh）或 GitLab CLI（glab）；连接仓库，选择基础分支，并在运行性能任务前校准标尺。",
+				"description": "先度量 GitHub 或 GitLab 仓库，再改动它。先设计一个经过校准的性能指标，也就是标尺；再用一个已知改进来证明该指标可信。随后运行“保留或回滚”改进循环：每个候选修复都写在独立 worktree 中，要通过可编辑文件白名单以及仓库自身测试，只有当实测收益超过噪声带时才会保留。默认情况下，留下来的结果会拟为 GitHub 草稿拉取请求或 GitLab 草稿合并请求，由你自己审阅并发布。",
 				"display_name": "Auto-Improvement",
 				"highlight_1": "先证明自己的指标——标尺不可信时，运行会拒绝开始",
 				"highlight_2": "每个候选都做 A/B 度量，缺陷修复则用 RED/GREEN，而不是只凭“看起来对”",
 				"highlight_3": "只有当收益超过实测噪声带时才保留改动",
-				"highlight_4": "拟写 GitHub 拉取请求——仅为草稿，绝不代你发布或合并",
+				"highlight_4": "拟写 GitHub 拉取请求或 GitLab 合并请求——仅为草稿，绝不代你发布或合并",
 				"highlight_5": "在禁止 push 的克隆上运行，任何东西都不会未经审阅离开沙箱",
-				"highlight_6": "每个拉取请求、每项发现、每次运行各有一个可续接的聊天会话",
+				"highlight_6": "每个拉取请求或合并请求、每项发现、每次运行各有一个可续接的聊天会话",
 				"page_label": "Auto-Improve"
 			},
-			"setupPanel": { "https_github_com_owner_repo": "https://github.com/owner/repo" }
+			"setupPanel": { "repo_url_placeholder": "https://github.com/owner/repo 或 https://gitlab.com/group/project" }
 		} },
 		autoImprovement: {
 			"activityDiscovered": "(发现 {{discovered}} 项，新增 {{fresh}} 项)",
@@ -1387,7 +1387,7 @@ var CATALOGS = {
 			"queuedOnly": "仅在本地排队，尚未创建",
 			"refreshPr": "刷新拉取请求状态",
 			"regressed": "回退的测试：{{tests}}",
-			"repoLabel": "要改进的 GitHub 仓库",
+			"repoLabel": "要改进的 GitHub 或 GitLab 仓库",
 			"reproTest": "复现测试",
 			"rulerHeading": "标尺",
 			"rulerNotReady": "标尺尚未校准。标尺只用于判定性能提速；从本页面启动的运行用于修复缺陷，每个修复由仓库自身的测试来判定。",
@@ -1850,7 +1850,7 @@ function SetupPanel({ config }) {
 					children: [/* @__PURE__ */ jsx(Input, {
 						value: url,
 						onChange: (e) => setUrl(e.target.value),
-						placeholder: i18nT("apps.autoImprovement.setupPanel.https_github_com_owner_repo"),
+						placeholder: i18nT("apps.autoImprovement.setupPanel.repo_url_placeholder"),
 						className: "flex-1",
 						"aria-label": i18nT("autoImprovement.repoLabel"),
 						...ime.bindEnter({ onEnter: startClone })
@@ -2541,18 +2541,37 @@ function useAgentSession() {
 	};
 }
 // src/lib/prompts.ts
-/** The non-negotiables appended to every seed prompt. */
-var CONSTRAINTS = ["Constraints: this pull request is a DRAFT by design — never publish it, mark it ready for review, merge it, or enable auto-merge; that is the human's call.", "Never edit the ruler, the measurement harness, or the tests-of-record to make a number look better. If the measurement seems wrong, say so and explain why rather than changing it."].join("\n");
+/** True when a change-request URL is a GitLab merge request rather than a GitHub
+*  pull request. The `/-/merge_requests/` path segment is GitLab's canonical web
+*  route, so the URL itself is the provider signal - no host list to maintain. */
+function isMergeRequestUrl(url) {
+	return Boolean(url && url.includes("/-/merge_requests/"));
+}
+/** The provider's own noun for a drafted change: "merge request" on GitLab,
+*  "pull request" on GitHub. Spliced into English prompts, so English on purpose. */
+function changeRequestNoun(url) {
+	return isMergeRequestUrl(url) ? "merge request" : "pull request";
+}
+/** The abbreviation practitioners use for the same thing: "MR" vs "PR". */
+function changeRequestAbbrev(url) {
+	return isMergeRequestUrl(url) ? "MR" : "PR";
+}
+/** The non-negotiables appended to every seed prompt. Parameterized on the
+*  subject URL so a prompt about a specific GitLab MR says "merge request";
+*  surfaces with no subject URL (ruler, run) get the neutral both-providers form. */
+function constraintsFor(url) {
+	return [url ? `Constraints: this ${changeRequestNoun(url)} is a DRAFT by design - never publish it, mark it ready for review, merge it, or enable auto-merge; that is the human's call.` : "Constraints: every pull or merge request this loop drafts is a DRAFT by design - never publish one, mark it ready for review, merge it, or enable auto-merge; that is the human's call.", "Never edit the ruler, the measurement harness, or the tests-of-record to make a number look better. If the measurement seems wrong, say so and explain why rather than changing it."].join("\n");
+}
 function prPrompt(pr) {
 	const lines = [
-		`Help me land this draft pull request: ${pr.url}`,
+		`Help me land this draft ${changeRequestNoun(pr.url)}: ${pr.url}`,
 		"",
 		`Title: ${pr.title}`
 	];
 	if (pr.verdict) lines.push(`Current state: ${pr.verdict}${pr.verdictReason ? ` — ${pr.verdictReason}` : ""}`);
 	if (pr.checks) lines.push(`CI checks: ${pr.checks}`);
 	if (pr.mergeable) lines.push(`Mergeability: ${pr.mergeable}`);
-	lines.push("", "This PR was drafted by the auto-improvement loop, which already verified the change and reproduced its result independently. Your job is what is left: read the current CI state and review threads, fix what is genuinely failing, and rebase if it conflicts.", "", "Start by telling me what is actually blocking it, before changing anything.", "", CONSTRAINTS);
+	lines.push("", `This ${changeRequestAbbrev(pr.url)} was drafted by the auto-improvement loop, which already verified the change and reproduced its result independently. Your job is what is left: read the current CI state and review threads, fix what is genuinely failing, and rebase if it conflicts.`, "", "Start by telling me what is actually blocking it, before changing anything.", "", constraintsFor(pr.url));
 	return lines.join("\n");
 }
 function findingPrompt(f) {
@@ -2564,8 +2583,8 @@ function findingPrompt(f) {
 		`Fingerprint: ${f.fingerprint}`
 	];
 	if (f.note) lines.push(`Note: ${f.note}`);
-	if (f.pr) lines.push(`Pull request: ${f.pr}`);
-	lines.push("", "I want to understand whether this result is believable, not just whether the tests passed. Walk me through the evidence the loop recorded: what was measured, how big the change was relative to the noise band, and what the gate checked.", "", "If the evidence is thin or the win is inside the noise band, say so plainly — a finding that should be discarded is a useful answer.", "", CONSTRAINTS);
+	if (f.pr) lines.push(`${isMergeRequestUrl(f.pr) ? "Merge request" : "Pull request"}: ${f.pr}`);
+	lines.push("", "I want to understand whether this result is believable, not just whether the tests passed. Walk me through the evidence the loop recorded: what was measured, how big the change was relative to the noise band, and what the gate checked.", "", "If the evidence is thin or the win is inside the noise band, say so plainly — a finding that should be discarded is a useful answer.", "", constraintsFor(f.pr));
 	return lines.join("\n");
 }
 function rulerPrompt(r) {
@@ -2577,7 +2596,7 @@ function rulerPrompt(r) {
 	if (r.primary) lines.push(`Primary metric: ${r.primary}`);
 	if (r.noiseBand) lines.push(`Noise band: ${r.noiseBand}`);
 	if (r.canary) lines.push(`Canary: ${r.canary}`);
-	lines.push("", "The loop refuses to optimize against a metric it cannot trust, so this is the gate everything else depends on. Help me judge it: is the noise band realistic for this harness, does the canary actually prove the ruler can detect a known win, and is the primary metric attributable to a named stage rather than a whole-system average?", "", "If the ruler is not trustworthy, tell me what would make it measurable instead of suggesting we proceed anyway.", "", CONSTRAINTS);
+	lines.push("", "The loop refuses to optimize against a metric it cannot trust, so this is the gate everything else depends on. Help me judge it: is the noise band realistic for this harness, does the canary actually prove the ruler can detect a known win, and is the primary metric attributable to a named stage rather than a whole-system average?", "", "If the ruler is not trustworthy, tell me what would make it measurable instead of suggesting we proceed anyway.", "", constraintsFor());
 	return lines.join("\n");
 }
 // src/AutoImprovementPage.tsx
@@ -2613,17 +2632,37 @@ var DRAFTED_STATUSES = /* @__PURE__ */ new Set(["filed"]);
 var COMMITTED_STATUS = "committed";
 /** A short commit sha, as the direct-commit path records it in the ledger's `cr`. */
 var SHA_RE = /^[0-9a-f]{7,40}$/i;
-/** The GitHub URL for a committed finding's sha, or null when we cannot build one.
+/** `path` without one trailing `.git`. */
+function stripGitSuffix(path) {
+	return path.endsWith(".git") ? path.slice(0, -4) : path;
+}
+/** The code-host URL for a committed finding's sha, or null when we cannot build one.
 *
 *  The direct-commit path stores a bare sha (e.g. `1537c449`) rather than a url, so
 *  the generic `prUrlOf` — which only accepts `http…` — rendered NOTHING for a
-*  committed finding and the row instead showed a re-commit button. `repo` is the
-*  `owner/name` display string the config already carries. */
-function commitUrlOf(finding, repo) {
+*  committed finding and the row instead showed a re-commit button. The web base is
+*  derived from the CONFIGURED `target_url` (the validated https URL setup persisted)
+*  rather than a hardcoded host: GitHub takes `/commit/<sha>`, GitLab takes
+*  `/-/commit/<sha>`. Exported for tests. */
+function commitUrlOf(finding, targetUrl) {
 	const sha = (finding.pr || finding.cr || "").trim();
 	if (!SHA_RE.test(sha)) return null;
-	if (!/^[\w.-]+\/[\w.-]+$/.test(repo)) return null;
-	return `https://github.com/${repo}/commit/${sha}`;
+	let base;
+	try {
+		base = new URL(targetUrl);
+	} catch {
+		return null;
+	}
+	if (base.protocol !== "https:") return null;
+	let raw = base.pathname.split("/-/")[0];
+	while (raw.endsWith("/")) raw = raw.slice(0, -1);
+	raw = stripGitSuffix(raw);
+	if (!raw || raw === "/") return null;
+	const isGitHub = (base.hostname.startsWith("www.") ? base.hostname.slice(4) : base.hostname) === "github.com";
+	const infix = isGitHub ? "/commit/" : "/-/commit/";
+	const path = isGitHub ? stripGitSuffix(`/${raw.split("/").filter(Boolean).slice(0, 2).join("/")}`) : raw;
+	if (isGitHub && path.split("/").length < 3) return null;
+	return `${base.origin}${path}${infix}${sha}`;
 }
 /** Map a watcher verdict onto the shared badge vocabulary. */
 function verdictVariant(verdict) {
@@ -2770,6 +2809,7 @@ function AutoImprovementPage() {
 	const qc = useQueryClient();
 	const findings = findingsResp?.findings ?? [];
 	const repo = String(config?.target_display || config?.target_url || "repository");
+	const targetUrl = String(config?.target_url || "");
 	const branch = String(config?.branch || "").replace(/^origin\//, "") || "default";
 	const calibrated = ruler?.status === "calibrated";
 	const drafted = findings.filter((f) => DRAFTED_STATUSES.has(f.status));
@@ -2979,8 +3019,8 @@ function AutoImprovementPage() {
 											className: "text-muted",
 											children: STATUS_LABEL_KEY[f.status] ? i18nT(STATUS_LABEL_KEY[f.status]) : f.status
 										}),
-										f.status === COMMITTED_STATUS && commitUrlOf(f, repo) ? /* @__PURE__ */ jsxs("a", {
-											href: commitUrlOf(f, repo),
+										f.status === COMMITTED_STATUS && commitUrlOf(f, targetUrl) ? /* @__PURE__ */ jsxs("a", {
+											href: commitUrlOf(f, targetUrl),
 											target: "_blank",
 											rel: "noopener noreferrer",
 											"aria-label": i18nT("autoImprovement.viewCommit"),
