@@ -172,7 +172,6 @@ class TestTheManifest:
         manifest, builtin = _manifest(), _builtin()
         for key in (
             "name",
-            "version",
             "permissions",
             "dependencies",
             "defaultEnabled",
@@ -181,6 +180,15 @@ class TestTheManifest:
             "skills",
         ):
             assert manifest.get(key) == builtin.get(key), key
+
+    def test_the_version_is_never_below_the_builtins(self) -> None:
+        """A patch release here moves ahead of the fixture; the pin release moves the
+        built-in's version up to the pinned one (a first adoption needs them equal)."""
+
+        def semver(version: str) -> tuple[int, ...]:
+            return tuple(int(part) for part in version.split("."))
+
+        assert semver(_manifest()["version"]) >= semver(_builtin()["version"])
 
     def test_the_display_fields_are_the_builtins(self) -> None:
         manifest, builtin = _manifest(), _builtin()

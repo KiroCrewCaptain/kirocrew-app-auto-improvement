@@ -237,20 +237,16 @@ between a seam and the host's internals would be two policies.
    app-owned crew-member and agent-session API with the gateway's tool gate and
    transport floor, a scrubber and an audit sink reachable from an app's own threads
    and child processes, and a public file helper.
-2. **The MCP server's own-tool auto-approve after adoption.** Adoption now carries the
-   app's stdio MCP server (#32637, E10 in `docs/system-specs/modules/app-kit-platform.md`):
-   this tree starts it with a bare `python3` and `backend/mcp_launch.py`, the shape the
-   gateway anchors to the adopted root, with the built-in's server key, its six
-   `autoApprove` tools and no `env`, and Kiro Crew's own check accepts it
+2. **The MCP server's own-tool auto-approve after adoption (closed).** Adoption carries
+   the app's stdio MCP server (#32637, E10 in
+   `docs/system-specs/modules/app-kit-platform.md`): this tree starts it with a bare
+   `python3` and `backend/mcp_launch.py`, the shape the gateway anchors to the adopted
+   root, with the built-in's server key, its six `autoApprove` tools and no `env`, and
+   Kiro Crew's own check accepts it
    (`tests/test_manifest_contract.py::test_adoption_carries_the_server_from_this_tree`).
-   What adoption does not yet carry is the tool gate's trust in an app's OWN server:
-   it reads the built-in installs only (`execution.builtin_app_mcp_servers`), so after
-   adoption this server's six read-only tools would start asking for approval on a
-   governed host and on a harness that relies on the PreToolUse gate. Kiro Crew pins
-   that with `test_no_shipped_pin_names_a_built_in_that_ships_an_mcp_server`, so **the
-   adoption pin for `auto-improvement` must not be added until the core change that
-   carries that trust to an adopted record merges** (in flight as
-   `fix/adopted-app-own-mcp-autoapprove`) and removes that pin.
+   kirodotdev/KiroCrew#33088 carries the tool gate's trust in an app's OWN server to an
+   adopted record whose execution grant is bound to the pinned repository, so the six
+   read-only tools keep running without a prompt after adoption.
 3. **Core still names the app.** `apps/builtins/__init__.py:4` (`BUILTIN_NAMES`),
    `security_posture.py:583-612` and `security_posture_sinks_gateway.py:628-738`
    (posture rows naming the built-in's files), `sandbox_leaves.py:174-182` and
@@ -386,8 +382,8 @@ neutral fixture when the built-in leaves.
 The release that adds adoption still ships the built-in. A user's built-in record moves
 onto this repository at the commit Kiro Crew pins, on the restart after the tree is
 fetched and verified; a record that cannot move keeps running the built-in copy,
-unchanged. For this app the pin waits on gap 2 (the tool gate's own-server trust for an
-adopted record).
+unchanged. The tree reads `ctx.lifecycle` (App Kit level 2), so its pin row carries
+`minAppSdkLevel` 2: a gateway below that level keeps the built-in copy.
 
 ## Release handoff: one commit for both pins
 
@@ -395,8 +391,9 @@ The adoption pin and the catalog row must name the same commit, and that commit 
 the ported tree.
 
 1. Call the full 40-hex SHA of this repository's `main` `C` (`git rev-parse HEAD`).
-2. In the Kiro Crew release PR that adds adoption, once gap 2 is closed, run
-   `python3 scripts/adoption_pin.py compute <this URL> C` and add the row it prints to
+2. In the Kiro Crew pin PR, move the built-in's `app.json` `version` to this tree's (a
+   first adoption needs them equal), run
+   `python3 scripts/adoption_pin.py compute <this URL> C --min-sdk-level 2` and add the row it prints to
    `src/kiro_crew/apps/adoption-pins.json`; then `python3 scripts/adoption_pin.py verify`.
    Until that row exists the release adopts nothing, and the catalog row must not switch.
 3. The KiroCrewApps row for `auto-improvement` switches to `"type": "git"`, this URL,
