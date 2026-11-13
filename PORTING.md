@@ -47,6 +47,14 @@ through `_host.need`). The checker is POSIX only: a configured command refuses t
 on Windows, where a process it left running could not be stopped with it. Both as
 kirodotdev/KiroCrew#32301 does.
 
+The setup panel takes two later wheel-copy fixes. kirodotdev/KiroCrew#33128: the Clone
+button stays in the tab order while a clone runs (`aria-disabled`, not `disabled`), a
+second press in the same tick starts no second clone, and a request that fails outright
+is announced in an alert as well as a refusal the backend explains.
+kirodotdev/KiroCrew#33344: the current-repository line is one message with a `<repo/>`
+slot (`autoImprovement.currentRepoLine`, translated in all 12 locales), so each language
+places the repository name where its word order puts it.
+
 Paths with a line number below refer to the snapshot commit. A **gap** is something the
 built-in gets from Kiro Crew that an external app has no public way to get yet;
 closing one is a Kiro Crew change (a generic, app-agnostic App Kit seam), not a
@@ -296,6 +304,8 @@ paths, plural forms by `Intl.PluralRules`.
 | `components/ui` `Badge`, `Btn`, `Card`, `CardTitle`, `Input`, `StatCard`; `components/Clickable` | The same components from `@kirocrew/app-sdk/ui` |
 | `components/SimpleSelect` | `Select` from `@kirocrew/app-sdk/ui` (a native `<select>` on an older host, `ui/src/hostSdk.ts`) |
 | `hooks/useImeGuard` | `useImeGuard` from `@kirocrew/app-sdk` |
+| `components/ErrorNotice` (the clone failure, kirodotdev/KiroCrew#33128) | `ErrorNotice` from `@kirocrew/app-sdk/ui` |
+| `Trans` from `react-i18next` (`autoImprovement.currentRepoLine`, kirodotdev/KiroCrew#33344) | `tSlot` in `ui/src/i18n.ts`: the catalog text split on the `<repo/>` tag, with the repository name a component child, never a translated value |
 | `i18n/t.i18nT`, `i18n/format.fmtDateFields` | `ui/src/i18n.ts` over the app's own catalogs (`fmtDateFields` reads the host's active locale) |
 | `store/chatSlice` `createSlot`, `deleteSlot`, `switchSlot`, `requestSlotFolderOpen` and `api.chatFolders` / `createChatFolder` / `chatSlotDetail` (`lib/agentSession.ts:24-30`) | `ui/src/host/chat.ts`: the same `POST /api/chat/slots`, `DELETE /api/chat/slots/<key>`, `GET /api/chat/slots/<key>?limit=1`, `GET`/`POST /api/chat/folders` over the scoped client; the session is opened with `useChatLauncher().openChat({slotKey})`; no folder expand (gap 10) |
 | `chat-core/transport/sendTurn` | `ui/src/host/sendTurn.ts`, the receipt contract restated, over a wire that posts `/api/chat?ws=1` through the scoped client |

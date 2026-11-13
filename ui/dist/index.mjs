@@ -1,10 +1,10 @@
 import * as sdk from "@kirocrew/app-sdk";
 import { activeLocale, useAppApi, useChatLauncher, useImeGuard, useLanguageGeneration } from "@kirocrew/app-sdk";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { Fragment, createElement, useCallback, useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Brain, Check, ChevronDown, ChevronRight, ExternalLink, FolderGit2, GitBranch, GitCommitVertical, GitPullRequest, Loader2, MessageSquare, Minus, Play, RefreshCw, Ruler, Square, X } from "lucide-react";
 import * as ui from "@kirocrew/app-sdk/ui";
-import { Badge, Btn, Card, CardTitle, Clickable, Input, StatCard } from "@kirocrew/app-sdk/ui";
+import { Badge, Btn, Card, CardTitle, Clickable, ErrorNotice, Input, StatCard } from "@kirocrew/app-sdk/ui";
 import { jsx, jsxs } from "react/jsx-runtime";
 // src/api.ts
 var API = "/api/apps/auto-improvement";
@@ -169,7 +169,7 @@ var CATALOGS = {
 			"commitConfirm": "এই পরিবর্তন “{{branch}}”-এ কমিট করে পুশ করবেন? প্রকাশিত কমিট ফিরিয়ে নেওয়া যায় না।",
 			"commitFailed": "কমিট প্রত্যাখ্যান করা হয়েছে।",
 			"commitFinding": "ব্রাঞ্চে কমিট করুন",
-			"currentRepo": "কাজ চলছে",
+			"currentRepoLine": "কাজ চলছে: <repo/>",
 			"cycle": "চক্র",
 			"defectHeading": "ত্রুটি",
 			"delta": "মাপা পার্থক্য",
@@ -277,7 +277,7 @@ var CATALOGS = {
 			"commitConfirm": "Diese Änderung nach „{{branch}}“ committen und pushen? Ein veröffentlichter Commit lässt sich nicht zurückrufen.",
 			"commitFailed": "Der Commit wurde abgelehnt.",
 			"commitFinding": "In den Branch committen",
-			"currentRepo": "Bearbeitet",
+			"currentRepoLine": "Arbeitet an <repo/>",
 			"cycle": "Zyklus",
 			"defectHeading": "Defekt",
 			"delta": "Gemessene Differenz",
@@ -385,7 +385,7 @@ var CATALOGS = {
 			"commitConfirm": "Commit this change to “{{branch}}” and push it? A published commit cannot be recalled.",
 			"commitFailed": "The commit was refused.",
 			"commitFinding": "Commit to the branch",
-			"currentRepo": "Working on",
+			"currentRepoLine": "Working on <repo/>",
 			"cycle": "Cycle",
 			"defectHeading": "Defect",
 			"delta": "Measured delta",
@@ -493,7 +493,7 @@ var CATALOGS = {
 			"commitConfirm": "¿Confirmar este cambio en “{{branch}}” y subirlo? Un commit publicado no se puede retirar.",
 			"commitFailed": "El commit fue rechazado.",
 			"commitFinding": "Confirmar en la rama",
-			"currentRepo": "Trabajando en",
+			"currentRepoLine": "Trabajando en <repo/>",
 			"cycle": "Ciclo",
 			"defectHeading": "Defecto",
 			"delta": "Diferencia medida",
@@ -601,7 +601,7 @@ var CATALOGS = {
 			"commitConfirm": "Valider cette modification sur « {{branch}} » et la pousser ? Un commit publié ne peut pas être retiré.",
 			"commitFailed": "Le commit a été refusé.",
 			"commitFinding": "Valider sur la branche",
-			"currentRepo": "En cours sur",
+			"currentRepoLine": "En cours sur <repo/>",
 			"cycle": "Cycle",
 			"defectHeading": "Défaut",
 			"delta": "Écart mesuré",
@@ -709,7 +709,7 @@ var CATALOGS = {
 			"commitConfirm": "यह बदलाव “{{branch}}” में कमिट करके पुश करें? प्रकाशित कमिट वापस नहीं लिया जा सकता।",
 			"commitFailed": "कमिट अस्वीकार कर दिया गया।",
 			"commitFinding": "ब्रांच में कमिट करें",
-			"currentRepo": "इस पर काम हो रहा है",
+			"currentRepoLine": "<repo/> पर काम हो रहा है",
 			"cycle": "चक्र",
 			"defectHeading": "दोष",
 			"delta": "मापा गया अंतर",
@@ -817,7 +817,7 @@ var CATALOGS = {
 			"commitConfirm": "Applicare questa modifica su «{{branch}}» e inviarla? Un commit pubblicato non può essere ritirato.",
 			"commitFailed": "Il commit è stato rifiutato.",
 			"commitFinding": "Commit sul ramo",
-			"currentRepo": "In lavorazione su",
+			"currentRepoLine": "In lavorazione su <repo/>",
 			"cycle": "Ciclo",
 			"defectHeading": "Difetto",
 			"delta": "Differenza misurata",
@@ -925,7 +925,7 @@ var CATALOGS = {
 			"commitConfirm": "この変更を 「{{branch}}」 にコミットしてプッシュしますか？公開したコミットは取り消せません。",
 			"commitFailed": "コミットは拒否されました。",
 			"commitFinding": "ブランチにコミット",
-			"currentRepo": "対象",
+			"currentRepoLine": "「<repo/>」で作業中",
 			"cycle": "サイクル",
 			"defectHeading": "不具合",
 			"delta": "測定した差分",
@@ -1033,7 +1033,7 @@ var CATALOGS = {
 			"commitConfirm": "이 변경을 ‘{{branch}}’에 커밋하고 푸시하시겠습니까? 공개된 커밋은 되돌릴 수 없습니다.",
 			"commitFailed": "커밋이 거부되었습니다.",
 			"commitFinding": "브랜치에 커밋",
-			"currentRepo": "작업 대상",
+			"currentRepoLine": "‘<repo/>’ 작업 중",
 			"cycle": "주기",
 			"defectHeading": "결함",
 			"delta": "측정된 차이",
@@ -1141,7 +1141,7 @@ var CATALOGS = {
 			"commitConfirm": "Confirmar esta alteração em “{{branch}}” e enviá-la? Um commit publicado não pode ser retirado.",
 			"commitFailed": "O commit foi recusado.",
 			"commitFinding": "Fazer commit no ramo",
-			"currentRepo": "Trabalhando em",
+			"currentRepoLine": "Trabalhando em <repo/>",
 			"cycle": "Ciclo",
 			"defectHeading": "Defeito",
 			"delta": "Diferença medida",
@@ -1249,7 +1249,7 @@ var CATALOGS = {
 			"commitConfirm": "Зафиксировать это изменение в «{{branch}}» и отправить? Опубликованный коммит нельзя отозвать.",
 			"commitFailed": "Коммит отклонён.",
 			"commitFinding": "Закоммитить в ветку",
-			"currentRepo": "В работе",
+			"currentRepoLine": "В работе: <repo/>",
 			"cycle": "Цикл",
 			"defectHeading": "Дефект",
 			"delta": "Измеренная разница",
@@ -1357,7 +1357,7 @@ var CATALOGS = {
 			"commitConfirm": "将此更改提交到 “{{branch}}” 并推送？已发布的提交无法撤回。",
 			"commitFailed": "提交被拒绝。",
 			"commitFinding": "提交到分支",
-			"currentRepo": "正在处理",
+			"currentRepoLine": "正在处理 <repo/>",
 			"cycle": "轮次",
 			"defectHeading": "缺陷",
 			"delta": "实测差值",
@@ -1471,6 +1471,20 @@ function t(key, vars) {
 }
 /** The dashboard's name for this helper, so the ported call sites read unchanged. */
 var i18nT = t;
+/**
+* `key`'s text with each `<name/>` tag replaced by `node`, so every language places
+* the node where its own word order puts it (the dashboard's `<Trans components>`
+* for one self-closing tag). The text around the tag stays plain text, and the node
+* is a component child, never a translated value.
+*/
+function tSlot(key, name, node, vars) {
+	const out = [];
+	t(key, vars).split(`<${name}/>`).forEach((part, index) => {
+		if (index > 0) out.push(createElement(Fragment, { key: index }, node));
+		if (part) out.push(part);
+	});
+	return out;
+}
 /**
 * Date/time fields in the app's language, as the dashboard's `i18n/format.fmtDateFields`
 * renders them: an explicit field set (`hour`, `minute`, `second`, ...) read in the
@@ -1785,8 +1799,18 @@ function SetupPanel({ config }) {
 				qc.invalidateQueries({ queryKey: ["auto-improvement-config"] });
 				qc.invalidateQueries({ queryKey: ["auto-improvement-branches"] });
 			}
+		},
+		onSettled: () => {
+			cloning.current = false;
 		}
 	});
+	const cloning = useRef(false);
+	const startClone = () => {
+		const u = url.trim();
+		if (!u || cloning.current) return;
+		cloning.current = true;
+		clone.mutate(u);
+	};
 	const saveConfig = useMutation({
 		mutationFn: (patch) => sendJson("PUT", `${API}/config`, patch).catch((err) => refusalBody(err)),
 		onSuccess: () => qc.invalidateQueries({ queryKey: ["auto-improvement-config"] })
@@ -1829,39 +1853,31 @@ function SetupPanel({ config }) {
 						placeholder: i18nT("apps.autoImprovement.setupPanel.https_github_com_owner_repo"),
 						className: "flex-1",
 						"aria-label": i18nT("autoImprovement.repoLabel"),
-						...ime.bindEnter({ onEnter: () => {
-							if (url.trim()) clone.mutate(url.trim());
-						} })
+						...ime.bindEnter({ onEnter: startClone })
 					}), /* @__PURE__ */ jsx(Btn, {
 						primary: true,
 						"aria-label": i18nT("autoImprovement.cloneBtn"),
-						disabled: !url.trim() || clone.isPending,
-						onClick: () => clone.mutate(url.trim()),
+						disabled: !url.trim(),
+						"aria-disabled": clone.isPending || void 0,
+						className: "aria-disabled:bg-bg-hover aria-disabled:text-muted aria-disabled:border-transparent aria-disabled:opacity-60 aria-disabled:cursor-default aria-disabled:hover:bg-bg-hover aria-disabled:hover:shadow-none aria-disabled:active:scale-100",
+						onClick: startClone,
 						children: clone.isPending ? /* @__PURE__ */ jsx(Loader2, {
 							className: "lucide-inline animate-spin",
 							size: 14
 						}) : i18nT("autoImprovement.cloneBtn")
 					})]
 				}),
-				clone.data?.error ? /* @__PURE__ */ jsx("p", {
-					className: "text-[12px] text-warn",
-					children: clone.data.error
-				}) : null,
+				clone.data?.error || clone.error ? /* @__PURE__ */ jsx(ErrorNotice, { message: clone.data?.error || clone.error?.message }) : null,
 				configured ? /* @__PURE__ */ jsxs("p", {
 					className: "text-[12px] text-muted",
-					children: [
-						i18nT("autoImprovement.currentRepo"),
-						" ",
-						/* @__PURE__ */ jsx("span", {
-							className: "text-accent",
-							children: display
-						}),
-						config?.clone ? /* @__PURE__ */ jsx(Badge, {
-							variant: "ok",
-							className: "ml-2",
-							children: i18nT("autoImprovement.pushDisabled")
-						}) : null
-					]
+					children: [tSlot("autoImprovement.currentRepoLine", "repo", /* @__PURE__ */ jsx("span", {
+						className: "text-accent",
+						children: display
+					})), config?.clone ? /* @__PURE__ */ jsx(Badge, {
+						variant: "ok",
+						className: "ml-2",
+						children: i18nT("autoImprovement.pushDisabled")
+					}) : null]
 				}) : null
 			]
 		}),
