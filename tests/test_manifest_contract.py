@@ -5,8 +5,8 @@ pinned commit, so the tree must be something it can take over unchanged:
 
 - the same name, version, permissions, dependencies, platform, ``defaultEnabled``,
   agents, skills and MCP server tool set as the built-in
-  (``tests/fixtures/builtin-app.json`` is its manifest at the commit this was ported
-  from); a widened grant would be held back or force the app off;
+  (``tests/fixtures/builtin-app.json`` is its manifest at the Kiro Crew commit the port
+  last synced to); a widened grant would be held back or force the app off;
 - hooks that load the way the gateway loads them, from their file path into a
   synthetic package, with ``spine`` and ``profiles`` reached relatively, and that
   serve real requests through the gateway's own ``RouteRegistry``;

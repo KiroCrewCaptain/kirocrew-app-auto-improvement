@@ -16,4 +16,4 @@ pytest-asyncio==0.21.2
 pytest-timeout==2.2.0
 pytest-xdist==3.5.0
 flake8==7.5.0
-kirocrew @ https://github.com/kirodotdev/KiroCrew/archive/6d07df11cfb64f4c3fda0466165c7a0ba3efe748.tar.gz
+kirocrew @ https://github.com/kirodotdev/KiroCrew/archive/9b32941be66db450131e6874e46e648d75fda695.tar.gz

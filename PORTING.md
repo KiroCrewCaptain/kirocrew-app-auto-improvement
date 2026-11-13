@@ -30,7 +30,7 @@ kirodotdev/KiroCrew#33449 (a tighter push destination check in
 `backend/clone_setup.py`, with its tests in `tests/test_dogfood_learnings_clone.py`). The
 wheel copy's other changes since then are test relocations into its own `tests/` and
 comment rewording (#30076, #30043), which carry no behaviour. The test suite runs
-against Kiro Crew `main` `6d07df11cf` (`tests/requirements.txt`).
+against Kiro Crew `main` `9b32941be6` (`tests/requirements.txt`).
 
 The opt-in candidate admission check of kirodotdev/KiroCrew#32301 (#28012) is ported
 with its tests: `candidateAdmissionCommand` names a project evidence checker that both
@@ -46,6 +46,21 @@ checked (`platform_compat.kill_popen_tree`, `kill_process_group` and `pgroup_exi
 through `_host.need`). The checker is POSIX only: a configured command refuses the run
 on Windows, where a process it left running could not be stopped with it. Both as
 kirodotdev/KiroCrew#32301 does.
+
+GitLab support, kirodotdev/KiroCrew#22408, is ported with its tests: a repository URL
+on gitlab.com, or on a self-managed GitLab host the operator lists in
+`dashboard.gitlab_hosts`, connects like a GitHub one; survivors are drafted with
+`glab mr create --draft` behind the same recipe protocol (`profiles/pr_recipe_base.py`
+holds what both recipes share, `profiles/gitlab_repo/` the GitLab half), the watchers
+read a merge request through `glab`, and the agent tool gate refuses `glab` writes as it
+refuses `gh` ones. `gh` and `glab` are `optionalCommands`, `git` the only required
+command. The self-managed allowlist is the gateway's own
+(`dashboard.source_providers.hosts.gitlab_hosts_blocking`) and the cross-host token
+fence is `github_runner.gitlab_ambient_token_allowed`, both reached through `_host`; a
+gateway without the allowlist reader accepts only gitlab.com. The listing copy, the
+`apps.autoImprovement.setupPanel.repo_url_placeholder` and `autoImprovement.repoLabel`
+strings and `docs/MANUAL.md` follow the wheel copy; `autoImprovement.intro` and
+`autoImprovement.rulerNotReady` keep this repository's wording (see "UI").
 
 The setup panel takes two later wheel-copy fixes. kirodotdev/KiroCrew#33128: the Clone
 button stays in the tab order while a clone runs (`aria-disabled`, not `disabled`), a
@@ -162,9 +177,11 @@ becomes unredacted text, and a missing tool gate never becomes an approved tool 
 | `kiro_crew.dashboard.crash_dump_store` | `current_process_identity`, `pid_identity_alive` | `backend/runner.py:48` | `current_process_identity` / `pid_identity_alive`: is the process that owned a run record still alive | a run record cannot be judged interrupted (status refuses) | a process-identity helper in the SDK |
 | `kiro_crew.dashboard.handlers` | `source_providers` | `backend/pr_checks.py:187` | `source_providers.fetch_pull_request{,_checks}`, the gateway's own GitHub client | no PR status (the page shows Unavailable) | a source-provider read API on the context |
 | `kiro_crew.dashboard.handlers._shared` | `require_owner_dashboard_request` | `backend/routes.py:28` | `require_owner_dashboard_request` | not used: `ctx.require_owner` (level 1) replaces it | none |
+| `kiro_crew.dashboard.source_providers.hosts` | `gitlab_hosts_blocking` | `backend/clone_setup.py` `_gitlab_hosts` (kirodotdev/KiroCrew#22408) | the operator's self-managed GitLab allowlist (`dashboard.gitlab_hosts`), read off the event loop | an empty allowlist, so only gitlab.com and github.com connect | a source-host allowlist read on the context |
 | `kiro_crew.execution_context` | `bind_session_execution`, `member_config_for_id`, `resolve_member_execution` | `backend/crew.py:14` `spine/crew_runner.py:13` | resolve and bind a member's execution identity for its session | no member run | part of the crew-member runtime |
 | `kiro_crew.git_config_hooks` | `ConfigHookScanError`, `config_hook_disable_args` | `spine/git_safety.py:77` | disable `hook.<name>.command` config hooks on every host-side git call over an agent-writable tree | no host-side git (every call refuses); the scan error stays catchable | a hardened host-git helper in the SDK |
 | `kiro_crew.git_tmp_packs` | `reap_stale_tmp_packs` | `backend/clone_setup.py:32` `backend/commit.py:23` `spine/driver_publish.py:24` | reap the `tmp_pack_*` a killed fetch leaves | the fetch that needs it refuses | part of the hardened host-git helper |
+| `kiro_crew.github_runner` | `gitlab_ambient_token_allowed` | `profiles/gitlab_repo/glab_cli.py` (kirodotdev/KiroCrew#22408) | whether an ambient gitlab.com token may reach a given GitLab host, so a SaaS token never goes to a self-managed one | every `glab` spawn refuses | part of the source-host helper |
 | `kiro_crew.history` | `ConversationLog` | `spine/crew_runner.py:14` | `ConversationLog`, a member session's transcript | no member run | part of the crew-member runtime |
 | `kiro_crew.hooks` | `HOOK_REPLY`, `HookManager`, `TOOL_DENY`, `hook_gate_kwargs`, `hooks_config_from_config_dict` | `spine/agent_runner.py:53` `spine/agent_runner_gate.py:26` `spine/crew_runner.py:15` | the gateway's PreToolUse `HookManager` and its config, so every tool call the unattended runner approves passes the gateway's own gate | no agent run (a tool call cannot be gated, so none is approved) | a tool-gate API on the context |
 | `kiro_crew.json_line` | `parse_json_object_line`, `recover_line_id` | `backend/mcp_server.py:25` `spine/agent_runner.py:59` | the line-delimited JSON reader contract (stdio MCP server, agent stream) | no MCP server; no agent stream | none needed: pure, could be restated |

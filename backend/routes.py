@@ -22,7 +22,7 @@ from typing import Any, Awaitable, Callable
 from aiohttp import web
 
 
-from ..profiles.github_repo.pr_recipe import GitHubPRRecipe
+from ..profiles import build_pr_recipe, target_provider
 from ..spine.push_policy import normalize_branch
 from . import (
     clone_setup,
@@ -884,8 +884,14 @@ async def _handle_draft_pr(request: web.Request) -> web.StreamResponse:
                 ),
             }
 
-        recipe = GitHubPRRecipe(
-            user=str(config.get("githubUser") or ""),
+        # Provider-selected: a GitLab target drafts an MR via `glab`, a GitHub one a
+        # PR via `gh`. The factory owns which user config key each recipe reads.
+        provider = target_provider(config)
+        recipe = build_pr_recipe(
+            provider,
+            # GitLab attribution comes from the authenticated glab token, so only the
+            # GitHub recipe reads a user config key.
+            user=str(config.get("githubUser") or "") if provider == "github" else "",
             clone_path=Path(clone),
             pr_queue_dir=queue,
             base_ref=str(config.get("branch") or "origin/main"),
