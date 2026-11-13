@@ -18,6 +18,7 @@ from __future__ import annotations
 from . import _host
 
 import logging
+import os
 import shutil
 import subprocess
 import sys
@@ -42,6 +43,17 @@ _PROBE_TIMEOUT_S = 15.0
 
 
 def _which(binary: str) -> str:
+    """*binary* on PATH, or ``""``.
+
+    On Windows a bare-name ``shutil.which`` searches the current directory
+    first, so there only PATH's absolute entries are asked, by full path.
+    """
+    if os.name == "nt":
+        for entry in os.environ.get("PATH", "").split(os.pathsep):
+            found = shutil.which(os.path.join(entry, binary)) if os.path.isabs(entry) else None
+            if found:
+                return found
+        return ""
     return shutil.which(binary) or ""
 
 

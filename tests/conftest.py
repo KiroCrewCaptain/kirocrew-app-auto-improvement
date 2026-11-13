@@ -236,6 +236,17 @@ def _git_identity_for_production_commit_paths(
 
 
 @pytest.fixture(autouse=True)
+def _hermetic_git_config(_floor_monkeypatch: pytest.MonkeyPatch, _git_global_config: Path) -> None:
+    """Keep the host's global git config out of this suite's git.
+
+    The session floor's global file includes the host's ``~/.gitconfig``, so a host
+    ``core.hooksPath`` whose ``pre-commit`` refuses a commit on ``main`` failed every
+    fixture commit here. System config stays: Windows runners need its ``core.autocrlf``.
+    """
+    _floor_monkeypatch.setenv("GIT_CONFIG_GLOBAL", str(_git_global_config))
+
+
+@pytest.fixture(autouse=True)
 def _isolated_kirocrew_home(tmp_path: Path, _floor_monkeypatch: pytest.MonkeyPatch) -> Path:
     """Pin the host's data home under this test's ``tmp_path``, whatever else runs.
 

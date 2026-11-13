@@ -62,6 +62,21 @@ gateway without the allowlist reader accepts only gitlab.com. The listing copy, 
 strings and `docs/MANUAL.md` follow the wheel copy; `autoImprovement.intro` and
 `autoImprovement.rulerNotReady` keep this repository's wording (see "UI").
 
+Five later wheel-copy fixes are ported, each with its tests:
+kirodotdev/KiroCrew#33556 (on Windows the dependency check resolves `git`, `gh` and
+`glab` from PATH's absolute entries only, never the working directory,
+`backend/deps.py`), kirodotdev/KiroCrew#33565 (pinning git attributes refuses a Windows
+directory junction as it refuses a symlink, `spine/git_safety.py`),
+kirodotdev/KiroCrew#34238 (a session key ending in a newline is refused,
+`backend/store.py`), kirodotdev/KiroCrew#33510 (a member session and a runner-built
+session name this app as their `owning_app`, so the gateway judges their governance
+reads under the same app as their tool calls, `spine/crew_runner.py`,
+`spine/agent_runner.py`) and kirodotdev/KiroCrew#35779 (the suite's git reads no host
+global config, so a host `core.hooksPath` cannot refuse a fixture commit,
+`tests/conftest.py`). kirodotdev/KiroCrew#35858 is not needed here: it loads a test
+helper from Kiro Crew's `test/` by path, and this repository keeps that helper beside
+its tests.
+
 The setup panel takes two later wheel-copy fixes. kirodotdev/KiroCrew#33128: the Clone
 button stays in the tab order while a clone runs (`aria-disabled`, not `disabled`), a
 second press in the same tick starts no second clone, and a request that fails outright
