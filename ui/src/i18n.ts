@@ -20,6 +20,7 @@
  * every child, so a language switch repaints the page without a reload.
  */
 
+import { Fragment, createElement, type ReactNode } from 'react'
 import { activeLocale } from '@kirocrew/app-sdk'
 import bn from '../i18n/bn.json'
 import de from '../i18n/de.json'
@@ -117,6 +118,21 @@ export function t(key: string, vars?: Vars): string {
 
 /** The dashboard's name for this helper, so the ported call sites read unchanged. */
 export const i18nT = t
+
+/**
+ * `key`'s text with each `<name/>` tag replaced by `node`, so every language places
+ * the node where its own word order puts it (the dashboard's `<Trans components>`
+ * for one self-closing tag). The text around the tag stays plain text, and the node
+ * is a component child, never a translated value.
+ */
+export function tSlot(key: string, name: string, node: ReactNode, vars?: Vars): ReactNode[] {
+  const out: ReactNode[] = []
+  t(key, vars).split(`<${name}/>`).forEach((part, index) => {
+    if (index > 0) out.push(createElement(Fragment, { key: index }, node))
+    if (part) out.push(part)
+  })
+  return out
+}
 
 /**
  * Date/time fields in the app's language, as the dashboard's `i18n/format.fmtDateFields`
