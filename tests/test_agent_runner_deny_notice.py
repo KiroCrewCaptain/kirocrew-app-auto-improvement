@@ -34,6 +34,7 @@ from typing import Any
 import pytest
 
 from auto_improvement.spine import agent_runner as R
+from auto_improvement.tests.synthetic_credentials_helpers import github_classic
 from kiro_crew import llm_helpers
 from kiro_crew.constants import (
     DENY_CAUSE_AUDIT_UNAVAILABLE,
@@ -355,7 +356,7 @@ async def test_the_funnel_with_cause_none_stays_bare(fake_sel):
 @pytest.mark.asyncio
 async def test_agent_authored_text_is_redacted_before_it_reaches_the_model(fake_sel):
     provider = _Provider()
-    token = "ghp_" + "A" * 36
+    token = github_classic(seed=65)
     await R.SessionAgentRunner._reject(
         provider,
         "r9",

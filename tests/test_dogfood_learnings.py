@@ -32,6 +32,10 @@ from auto_improvement.spine.driver import BudgetCaps
 from auto_improvement.tests.dogfood_learnings_helpers import (  # noqa: F401
     _cwd_is_the_scratch_dir,
 )
+from auto_improvement.tests.synthetic_credentials_helpers import synth
+
+#: A GitLab personal access token in its published form (``glpat-`` and 20 characters).
+_GLPAT = "glpat-" + synth(20, seed=7)
 
 
 class TestMetricDirectionIsPlumbed:
@@ -337,7 +341,7 @@ class TestPushRetriesOnRace:
                 # uppercase `AWS_SECRET_ACCESS_KEY = '...'` spelling is NOT flagged, so a
                 # test using it would pass for the wrong reason.
                 return subprocess.CompletedProcess(
-                    args=a, returncode=0, stdout="AWS_KEY = 'glpat-IOSFODNN7EXAMPLE'\n", stderr=""
+                    args=a, returncode=0, stdout=f"AWS_KEY = '{_GLPAT}'\n", stderr=""
                 )
             # `rev-list --count FETCH_HEAD..HEAD` proves the rebase replayed exactly ONE
             # commit: an equivalent upstream patch makes git drop ours, and an
