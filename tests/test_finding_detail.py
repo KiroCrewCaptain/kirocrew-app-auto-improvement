@@ -19,6 +19,14 @@ from aiohttp.test_utils import TestClient, TestServer
 
 from harness import mount
 from auto_improvement.backend import routes, store
+from auto_improvement.tests.synthetic_credentials_helpers import synth
+from auto_improvement.tests.synthetic_credentials_helpers import aws_secret
+
+#: A 40-character AWS secret access key of the real shape (no documentation example).
+_AWS_SECRET = aws_secret(seed=62)
+
+#: A GitLab personal access token in its published form (``glpat-`` and 20 characters).
+_GLPAT = "glpat-" + synth(20, seed=7)
 
 PREFIX = "/api/apps/auto-improvement"
 
@@ -617,9 +625,9 @@ class TestServedEvidenceIsRedacted:
             _redact_for_display,
         )
 
-        leaked = "+AWS_SECRET_ACCESS_KEY = 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'\n"
+        leaked = f"+AWS_SECRET_ACCESS_KEY = '{_AWS_SECRET}'\n"
         out = _redact_for_display(leaked)
-        assert "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY" not in out
+        assert _AWS_SECRET not in out
 
     def test_ordinary_diff_text_survives_intact(self) -> None:
         """The gate still has to be able to apply what we show."""
@@ -662,11 +670,11 @@ class TestAllAgentAuthoredFieldsAreRedacted:
 
         gate = {
             "passed": False,
-            "detail": "assert aws_access_key_id=glpat-IOSFODNN7EXAMPLE",
-            "failing_tests": ["test_x", "aws_access_key_id=glpat-IOSFODNN7EXAMPLE"],
+            "detail": f"assert aws_access_key_id={_GLPAT}",
+            "failing_tests": ["test_x", f"aws_access_key_id={_GLPAT}"],
         }
         out = _redact_tree(gate)
-        assert "glpat-IOSFODNN7EXAMPLE" not in str(out)
+        assert _GLPAT not in str(out)
 
     def test_non_strings_survive_as_themselves(self) -> None:
         """The UI renders gate flags as tri-state icons — a stringified True breaks that."""
@@ -686,16 +694,16 @@ class TestAllAgentAuthoredFieldsAreRedacted:
         # name and file path (as could occur if the target repo named something that way).
         tree = {
             "profile": {
-                "name": "aws_access_key_id=glpat-IOSFODNN7EXAMPLE",
-                "file": "src/aws_access_key_id=glpat-IOSFODNN7EXAMPLE.py",
+                "name": f"aws_access_key_id={_GLPAT}",
+                "file": f"src/aws_access_key_id={_GLPAT}.py",
                 "children": [
                     {"name": "helper", "file": "app.py", "self_ms": 1.2},
-                    {"name": "glpat-IOSFODNN7EXAMPLE_worker", "file": "w.py", "self_ms": 0.3},
+                    {"name": f"{_GLPAT}_worker", "file": "w.py", "self_ms": 0.3},
                 ],
             }
         }
         out = _redact_tree(tree)
-        assert "glpat-IOSFODNN7EXAMPLE" not in str(out), (
+        assert _GLPAT not in str(out), (
             "a credential-shaped profiler frame name reached the browser unredacted"
         )
         # Numeric timing fields must survive so the flame/sunburst view still renders.
@@ -775,7 +783,7 @@ class TestEveryReaderOfRunEvidenceRedacts:
             "points": [
                 {
                     "candId": "c1",
-                    "description": "sped up via aws_access_key_id=glpat-IOSFODNN7EXAMPLE",
+                    "description": f"sped up via aws_access_key_id={_GLPAT}",
                     "bestSoFar": 90.0,
                     "kept": True,
                 }
@@ -783,7 +791,7 @@ class TestEveryReaderOfRunEvidenceRedacts:
             "primary": {"direction": "minimize"},
         }
         out = _redact_tree(series)
-        assert "glpat-IOSFODNN7EXAMPLE" not in str(out)
+        assert _GLPAT not in str(out)
         # Numbers and booleans the chart plots must survive unchanged.
         assert out["points"][0]["bestSoFar"] == 90.0
         assert out["points"][0]["kept"] is True
@@ -798,18 +806,18 @@ class TestEveryReaderOfRunEvidenceRedacts:
             "fp": "abc",
             "signature": "clean",
             # A block NOT in the per-field redaction list — run provenance.
-            "run": {"note": "token was aws_access_key_id=glpat-IOSFODNN7EXAMPLE"},
+            "run": {"note": f"token was aws_access_key_id={_GLPAT}"},
         }
         out = _redact_tree(detail)
-        assert "glpat-IOSFODNN7EXAMPLE" not in str(out)
+        assert _GLPAT not in str(out)
         assert out["fp"] == "abc"
 
     def test_the_findings_list_redacts_a_credential_in_a_note(self) -> None:
         """The sixth reader, found by the sweep rather than by review."""
         from auto_improvement.backend.routes import _redact_tree
 
-        rows = [{"fp": "abc", "note": "aws_access_key_id=glpat-IOSFODNN7EXAMPLE", "passed": True}]
+        rows = [{"fp": "abc", "note": f"aws_access_key_id={_GLPAT}", "passed": True}]
         out = _redact_tree(rows)
-        assert "glpat-IOSFODNN7EXAMPLE" not in str(out)
+        assert _GLPAT not in str(out)
         # Gate flags must survive as booleans — the UI renders them as tri-state icons.
         assert out[0]["passed"] is True
