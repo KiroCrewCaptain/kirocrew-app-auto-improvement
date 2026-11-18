@@ -5,7 +5,7 @@ Ported from the auto-improvement cases of Kiro Crew's
 ``test/test_git_tree_removal_windows.py``: the PR watchers' clone removal (its own
 clone, and an orphan the sweep reclaims) on a filesystem where a read-only file
 cannot be unlinked, simulated everywhere and for real on Windows; and the source
-scan, over this app's six git-tree removal sites.
+scan, over this app's eight git-tree removal sites.
 """
 
 from __future__ import annotations
@@ -87,6 +87,8 @@ _GIT_TREE_SITES = [
     ("spine/gate.py", "Gate.run_bug", "base_src.parent"),
     ("spine/gate.py", "Gate._stage_test_only_base", "base_tree"),
     ("spine/gate.py", "Gate._stage_test_only_base", "gitlink"),
+    ("spine/dry_run_root.py", "remove_dry_root", "tmp"),
+    ("spine/dry_run_root.py", "remove_dry_root", "entry"),
 ]
 
 _HELPERS = frozenset({"rmtree_force", "_rmtree_force_settled"})
