@@ -1828,3 +1828,152 @@ def test_claude_bin_is_overridable_from_the_environment():
 @pytest.mark.skipif(sys.platform == "win32", reason="POSIX signal names")
 def test_sigkill_is_available_for_the_escalation_path():
     assert int(R.SIGKILL) > 0
+
+
+# ── audited writes and the governance gate stay off the event loop ──────────
+#
+# In a spawned app backend ``sel()`` is a route client: a critical write is network I/O
+# and is refused on a thread that runs an event loop. The runner must therefore run
+# every critical write, and the governance gate that can make one, on a worker thread.
+
+
+class _LoopRefusingSel:
+    """A route-client-shaped writer: a critical write on a running loop is refused."""
+
+    def __init__(self) -> None:
+        self.rows: list[tuple[str, bool]] = []
+
+    @staticmethod
+    def _refuse_on_a_loop() -> None:
+        try:
+            asyncio.get_running_loop()
+        except RuntimeError:
+            return
+        raise OSError("a critical audit write must not run on an event loop")
+
+    def log_tool_invocation(self, **kw) -> None:
+        if kw.get("critical"):
+            self._refuse_on_a_loop()
+        self.rows.append(("tool_invocation", bool(kw.get("critical"))))
+
+    def log(self, event, critical: bool = False, **_kw) -> None:
+        if critical or event.event_type == "deny_exception":
+            self._refuse_on_a_loop()
+        self.rows.append((event.event_type, True))
+
+
+@pytest.fixture
+def route_like_sel(monkeypatch):
+    sel = _LoopRefusingSel()
+    monkeypatch.setattr("kiro_crew.sel.sel", lambda: sel)
+    # The deny gate reaches the log through ``SecurityEventLog()`` or ``sel()``, by host version.
+    monkeypatch.setattr("kiro_crew.security.deny_gate.SecurityEventLog", lambda *a, **k: sel)
+    monkeypatch.setattr("kiro_crew.security.deny_gate.sel", lambda: sel, raising=False)
+    return sel
+
+
+_S3_DOWNLOAD = "aws s3 cp --no-sign-request s3://public-bucket/input.json ./input.json"
+
+
+def _s3_download_events():
+    return [
+        _ev(
+            kind=EVENT_PERMISSION_REQUEST,
+            tool_kind="bash",
+            request_id="r1",
+            raw_tool_params={"command": _S3_DOWNLOAD},
+        ),
+        _ev(kind=EVENT_COMPLETE),
+    ]
+
+
+@pytest.mark.asyncio
+async def test_approve_writes_its_audit_row_off_the_event_loop(route_like_sel):
+    provider = _FakeProvider()
+    await R.SessionAgentRunner._approve(provider, "r1", tool="fsWrite")
+
+    assert provider.approved == ["r1"] and provider.rejected == []
+    assert ("tool_invocation", True) in route_like_sel.rows
+
+
+@pytest.mark.asyncio
+async def test_run_async_approves_an_s3_download_the_deny_exception_allows(
+    route_like_sel,
+):
+    provider = _FakeProvider(_s3_download_events())
+    res = await _drive(R.SessionAgentRunner(), provider)
+
+    assert res.ok is True
+    assert provider.approved == ["r1"] and provider.rejected == []
+    assert ("deny_exception", True) in route_like_sel.rows  # the exception row landed
+
+
+@pytest.mark.asyncio
+async def test_run_async_denies_when_the_deny_exception_is_written_on_the_loop(
+    route_like_sel, monkeypatch
+):
+    """A missed offload fails closed: the write is refused on the loop, so the tool is denied."""
+
+    async def _inline(func, /, *args, **kwargs):
+        return func(*args, **kwargs)
+
+    monkeypatch.setattr(R.asyncio, "to_thread", _inline)
+    provider = _FakeProvider(_s3_download_events())
+    res = await _drive(R.SessionAgentRunner(), provider)
+
+    assert res.ok is True
+    assert provider.approved == [] and provider.rejected == ["r1"]
+    assert ("deny_exception", True) not in route_like_sel.rows
+
+
+@pytest.mark.asyncio
+async def test_run_async_denies_when_the_governance_call_itself_raises(monkeypatch, fake_sel):
+    """A failure of the offloaded call (not a hook verdict) is a deny, never an approval."""
+
+    async def _no_thread(func, /, *args, **kwargs):
+        raise RuntimeError("can't start new thread")
+
+    monkeypatch.setattr(R.asyncio, "to_thread", _no_thread)
+    provider = _FakeProvider(
+        [
+            _ev(kind=EVENT_PERMISSION_REQUEST, tool_kind="fsRead", request_id="r1"),
+            _ev(kind=EVENT_COMPLETE),
+        ]
+    )
+    res = await _drive(R.SessionAgentRunner(), provider)
+
+    assert res.ok is True
+    assert provider.rejected == ["r1"] and provider.approved == []
+
+
+@pytest.mark.asyncio
+async def test_run_async_cancelled_while_awaiting_the_governance_call_never_approves(
+    monkeypatch, fake_sel
+):
+    import threading
+
+    from kiro_crew.testing.wait import FALLBACK_TIMEOUT_SECS, async_wait_until
+
+    entered, release = threading.Event(), threading.Event()
+
+    def _held_gate(ev, **_kw) -> str:
+        entered.set()
+        release.wait(FALLBACK_TIMEOUT_SECS)
+        return ""
+
+    monkeypatch.setattr(R, "_governance_denial", _held_gate)
+    provider = _FakeProvider(
+        [
+            _ev(kind=EVENT_PERMISSION_REQUEST, tool_kind="fsRead", request_id="r1"),
+            _ev(kind=EVENT_COMPLETE),
+        ]
+    )
+    task = asyncio.ensure_future(_drive(R.SessionAgentRunner(), provider))
+    await async_wait_until(entered.is_set)
+    task.cancel()
+    release.set()
+    with pytest.raises(asyncio.CancelledError):
+        await task
+
+    assert provider.approved == []  # the request was never approved
+    assert provider.rejected == []  # it ends unanswered with the run: denied by omission
