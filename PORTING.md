@@ -103,6 +103,14 @@ of them on its write tier, and the mask is what it was. kirodotdev/KiroCrew#3186
 does not have) and kirodotdev/KiroCrew#35994 (a test docstring this copy never carried)
 change no behaviour and are not ported.
 
+kirodotdev/KiroCrew#42447 (#42334) is ported with its tests: on Windows the setup clone
+writes `core.longpaths=true` into the new repository's own config, since the isolation
+that drops global and system config also drops a user's `core.longpaths`, so a tracked
+path past 260 characters checks out. A failed clone reports git's first `fatal:` line
+rather than the recovery hint git ends on, bounded at 500 characters instead of 200
+(`backend/clone_setup.py`, `tests/test_clone_setup_windows_longpaths.py`,
+`tests/test_clone_setup_git_failure_detail.py`).
+
 Paths with a line number below refer to the snapshot commit. A **gap** is something the
 built-in gets from Kiro Crew that an external app has no public way to get yet;
 closing one is a Kiro Crew change (a generic, app-agnostic App Kit seam), not a
