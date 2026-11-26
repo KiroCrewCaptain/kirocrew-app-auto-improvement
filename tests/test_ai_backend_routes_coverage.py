@@ -725,7 +725,8 @@ class TestBranches:
         _config(data_root, clone="/scratch/repo")
         seen: list[str] = []
 
-        def _list(clone: Path, **_kw: Any) -> tuple[list[str], str]:
+        def _list(clone: Path, *, config: dict) -> tuple[list[str], str]:
+            assert config["clone"] == "/scratch/repo"
             seen.append(os.path.realpath(str(clone)))
             return ["origin/main", "origin/dev"], ""
 

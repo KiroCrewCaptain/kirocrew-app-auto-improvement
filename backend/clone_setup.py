@@ -201,6 +201,18 @@ def _git_env(*, network_protocol: str = "") -> dict[str, str]:
     return env
 
 
+def _remote_git_auth(protocol: str, host: str) -> tuple[list[str], dict[str, str]]:
+    env = _git_env(network_protocol=protocol)
+    if protocol != "https":
+        return [], env
+    if host not in _GITHUB_HOSTS:
+        return [
+            "-c",
+            "credential.helper=!glab auth git-credential",
+        ], _glab_host_pinned_env(env, host)
+    return ["-c", "credential.helper=!gh auth git-credential"], env
+
+
 class IsolationProbeError(RuntimeError):
     """The push-isolation probe COULD NOT RUN — its sandbox launcher failed.
 
@@ -1100,19 +1112,13 @@ def _setup_safe_clone(url: str, scratch_root: Path, *, timeout_s: int = 300) -> 
     # is the only way a private https clone authenticates. The glab helper runs under
     # the same host pin as every other glab child, so an ambient gitlab.com token never
     # answers a self-managed host's credential request.
-    clone_env = _git_env(network_protocol=protocol)
-    if spec.provider == PROVIDER_GITLAB:
-        helper = "credential.helper=!glab auth git-credential"
-        clone_env = _glab_host_pinned_env(clone_env, spec.host)
-    else:
-        helper = "credential.helper=!gh auth git-credential"
+    auth, clone_env = _remote_git_auth(protocol, spec.host)
     try:
         proc = subprocess.run(
             [
                 "git",
                 *_GIT_SAFE_CONFIG,
-                "-c",
-                helper,
+                *auth,
                 "clone",
                 "--origin",
                 "origin",
@@ -1183,9 +1189,59 @@ def is_valid_branch_name(name: str) -> bool:
     )
 
 
-def list_clone_branches(clone: Path, *, timeout_s: int = 30) -> tuple[list[str], str]:
-    """Enumerate an existing clone's branches, default/HEAD first. Read-only, no
-    network fetch, operates only on the server-controlled clone dir."""
+def _live_branch_refs(where: str, remote: str, *, timeout_s: int) -> tuple[set[str], str] | None:
+    if remote.startswith("git@"):
+        protocol, host = "ssh", ""
+    elif IS_WINDOWS and _WINDOWS_DRIVE_PATH.match(remote):
+        protocol, host = "file", ""
+    else:
+        parsed = urlparse(remote)
+        protocol = parsed.scheme or "file"
+        host = _host_candidate((parsed.hostname or "").lower().rstrip("."), parsed.port)
+    auth, env = _remote_git_auth(protocol, host)
+    env["GIT_TERMINAL_PROMPT"] = "0"
+    try:
+        proc = subprocess.run(
+            [
+                "git",
+                *_GIT_SAFE_CONFIG,
+                *auth,
+                "ls-remote",
+                "--symref",
+                "--",
+                remote,
+                "HEAD",
+                "refs/heads/*",
+            ],
+            capture_output=True,
+            timeout=timeout_s,
+            shell=False,
+            env=env,
+            cwd=where,
+            **UTF8_TEXT,
+        )
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        logger.debug("Remote branch query raised %s; using clone refs", type(exc).__name__)
+        return None
+    if proc.returncode != 0:
+        logger.debug("Remote branch query exited %s; using clone refs", proc.returncode)
+        return None
+    prefix = "refs/heads/"
+    names: set[str] = set()
+    default = ""
+    for line in proc.stdout.splitlines():
+        value, _, ref = line.partition("\t")
+        if ref == "HEAD" and value.startswith(f"ref: {prefix}"):
+            default = value.removeprefix(f"ref: {prefix}")
+        elif ref.startswith(prefix):
+            names.add(ref.removeprefix(prefix))
+    return names, default
+
+
+def list_clone_branches(
+    clone: Path, *, config: dict | None = None, timeout_s: int = 30
+) -> tuple[list[str], str]:
+    """List checkout-ready clone branches, using the remote's branch list when available."""
     clone = Path(clone)
     if not (clone / ".git").is_dir():
         return [], f"Not a git clone: {clone}"
@@ -1233,6 +1289,13 @@ def list_clone_branches(clone: Path, *, timeout_s: int = 30) -> tuple[list[str],
         names.append(b)
     if not names:
         return [], "no branches found in the clone"
+    remote = resolve_origin_url(config) if config is not None else ""
+    live = _live_branch_refs(where, remote, timeout_s=min(timeout_s, 5)) if remote else None
+    if live is not None:
+        live_names, live_default = live
+        names = [name for name in names if name.removeprefix("origin/") in live_names]
+        default = f"origin/{live_default}" if f"origin/{live_default}" in names else live_default
+        return sorted(names, key=lambda name: (name != default, name)), ""
     head = subprocess.run(
         ["git", "-C", where, "symbolic-ref", "--short", "-q", "refs/remotes/origin/HEAD"],
         capture_output=True,

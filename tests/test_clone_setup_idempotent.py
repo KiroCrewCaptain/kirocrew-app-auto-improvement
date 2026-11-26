@@ -64,6 +64,79 @@ def _setup(bare: Path, root: Path) -> tuple[dict, str]:
         return clone_setup.setup_safe_clone("https://github.com/o/r", root)
 
 
+def test_live_picker_omits_retired_and_unavailable_branches(tmp_path: Path) -> None:
+    bare = _seeded_bare(tmp_path)
+    git_dir = ["git", "--git-dir", str(bare)]
+    subprocess.run([*git_dir, "branch", "legacy", "main"], check=True)
+    subprocess.run([*git_dir, "branch", "next", "main"], check=True)
+    result, error = _setup(bare, tmp_path / "root")
+    assert not error
+    clone = Path(result["clone"])
+
+    subprocess.run([*git_dir, "branch", "-d", "legacy"], check=True)
+    subprocess.run([*git_dir, "branch", "new-after-clone", "main"], check=True)
+    subprocess.run([*git_dir, "symbolic-ref", "HEAD", "refs/heads/next"], check=True)
+
+    clone_only, error = clone_setup.list_clone_branches(clone)
+    assert not error
+    assert clone_only[0] == "origin/main"
+    assert "origin/legacy" in clone_only
+
+    branches, error = clone_setup.list_clone_branches(clone, config={"origin_url": str(bare)})
+    assert not error
+    assert branches[0] == "origin/next"
+    assert {
+        "legacy",
+        "origin/legacy",
+        "new-after-clone",
+        "origin/new-after-clone",
+    }.isdisjoint(branches)
+    assert clone_setup.checkout_branch(clone, branches[0])[0]
+    assert clone_setup._origin_urls(clone, push=False) == [DISABLED_NO_PUSH]
+    assert clone_setup._origin_urls(clone, push=True) == [DISABLED_NO_PUSH]
+
+    offline = {"origin_url": str(tmp_path / "missing.git")}
+    assert clone_setup.list_clone_branches(
+        clone, config=offline
+    ) == clone_setup.list_clone_branches(clone)
+
+
+@pytest.mark.parametrize(
+    ("remote", "protocol", "helper", "host"),
+    [
+        ("https://github.com/o/r.git", "https", "gh", None),
+        ("https://gitlab.example:8443/g/r.git", "https", "glab", "gitlab.example:8443"),
+        (r"C:\repos\remote.git", "file", None, None),
+    ],
+)
+def test_live_branch_probe_uses_the_validated_remote_transport(
+    monkeypatch: pytest.MonkeyPatch,
+    remote: str,
+    protocol: str,
+    helper: str | None,
+    host: str | None,
+) -> None:
+    monkeypatch.setattr(clone_setup, "IS_WINDOWS", True)
+    monkeypatch.setenv("GITLAB_TOKEN", "saas-only-test-value")
+    monkeypatch.delenv("GITLAB_HOST", raising=False)
+    reply = subprocess.CompletedProcess([], 0, "ref: refs/heads/main\tHEAD\nabc\trefs/heads/main\n")
+    with mock.patch.object(clone_setup.subprocess, "run", return_value=reply) as run:
+        assert clone_setup._live_branch_refs("/clone", remote, timeout_s=5) == (
+            {"main"},
+            "main",
+        )
+    argv = run.call_args.args[0]
+    env = run.call_args.kwargs["env"]
+    assert env["GIT_ALLOW_PROTOCOL"] == protocol
+    if helper:
+        assert f"credential.helper=!{helper} auth git-credential" in argv
+    else:
+        assert all(not arg.startswith("credential.helper=!") for arg in argv)
+    assert env.get("GITLAB_HOST") == host
+    if host:
+        assert "GITLAB_TOKEN" not in env
+
+
 def test_second_setup_reuses_the_neutralized_clone(tmp_path: Path) -> None:
     bare = _seeded_bare(tmp_path)
     root = tmp_path / "root"
